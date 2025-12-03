@@ -1,0 +1,8 @@
+.DS_Store
+.env
+docker-compose.yml
+/node_modules/
+
+# React Router
+/.react-router/
+/build/
