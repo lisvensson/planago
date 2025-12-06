@@ -2,9 +2,9 @@ import logo from "../assets/planago-logo-white.svg";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary/75 text-primary-foreground">
+    <footer className="bg-primary/70 text-primary-foreground">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col-reverse items-center justify-between border-t border-accent/25 py-6 sm:flex-row">
+        <div className="flex flex-col-reverse items-center justify-between py-6 sm:flex-row">
           <div className="flex items-center space-x-3">
             <a
               href="/"

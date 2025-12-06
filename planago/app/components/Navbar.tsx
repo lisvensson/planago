@@ -8,9 +8,8 @@ import {
   MenuItems,
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import logo from "../assets/planago-logo-black.svg";
+import logo from "../assets/planago-logo-brown.svg";
 import { NavLink } from "react-router";
-import { authClient } from "~/shared/auth/client";
 
 const navigation = [
   { name: "Börja planera", href: "/planago/filter", current: false },
@@ -26,13 +25,12 @@ export default function Navbar() {
   return (
     <Disclosure
       as="nav"
-      className="relative bg-background border-b border-accent/25 text-foreground"
+      className="relative bg-background border-b border-accent/25 text-primary"
     >
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-            {/* Mobile menu button*/}
-            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent/10 hover:text-accent focus:outline-2 focus:-outline-offset-1 focus:outline-primary">
+            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-primary hover:bg-accent/10 hover:text-accent focus:outline-2 focus:-outline-offset-1 focus:outline-primary">
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
               <Bars3Icon
@@ -45,6 +43,7 @@ export default function Navbar() {
               />
             </DisclosureButton>
           </div>
+
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
               <a href="/" className="flex items-center h-16">
@@ -65,7 +64,7 @@ export default function Navbar() {
                       classNames(
                         isActive
                           ? "bg-primary text-primary-foreground"
-                          : "text-foreground hover:bg-accent/10 hover:text-accent",
+                          : "text-primary hover:bg-accent/10 hover:text-accent",
                         "rounded-md px-3 py-2 text-sm font-medium"
                       )
                     }
@@ -76,8 +75,8 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            {/* Profile dropdown */}
             <Menu as="div" className="relative ml-3">
               <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span className="absolute -inset-1.5" />
@@ -91,12 +90,12 @@ export default function Navbar() {
 
               <MenuItems
                 transition
-                className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg outline outline-border ..."
+                className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg outline outline-border ..."
               >
                 <MenuItem>
                   <a
                     href="/account/saved-plans"
-                    className="block px-4 py-2 text-sm text-foreground hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
+                    className="block px-4 py-2 text-sm text-primary hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
                   >
                     Sparade planer
                   </a>
@@ -104,7 +103,7 @@ export default function Navbar() {
                 <MenuItem>
                   <a
                     href="/account/settings"
-                    className="block px-4 py-2 text-sm text-foreground hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
+                    className="block px-4 py-2 text-sm text-primary hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
                   >
                     Inställningar
                   </a>
@@ -133,7 +132,7 @@ export default function Navbar() {
                 classNames(
                   isActive
                     ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-accent/10 hover:text-accent",
+                    : "text-primary hover:bg-accent/10 hover:text-accent",
                   "block rounded-md px-3 py-2 text-base font-medium"
                 )
               }
