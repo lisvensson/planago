@@ -9,7 +9,8 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import logo from "../assets/planago-logo-brown.svg";
-import { NavLink } from "react-router";
+import { Form, NavLink } from "react-router";
+import { authClient } from "~/shared/auth/client";
 
 const navigation = [
   { name: "Börja planera", href: "/planago/filter", current: false },
@@ -22,6 +23,13 @@ function classNames(...classes: string[]) {
 }
 
 export default function Navbar() {
+  const handleSignOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {},
+      },
+    });
+  };
   return (
     <Disclosure
       as="nav"
@@ -109,12 +117,20 @@ export default function Navbar() {
                   </a>
                 </MenuItem>
                 <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-left text-sm font-medium text-accent hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
+                  <Form
+                    method="post"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      handleSignOut();
+                    }}
                   >
-                    Logga ut
-                  </a>
+                    <button
+                      type="submit"
+                      className="block w-full px-4 py-2 text-left text-sm font-medium text-accent hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
+                    >
+                      Logga ut
+                    </button>
+                  </Form>
                 </MenuItem>
               </MenuItems>
             </Menu>
