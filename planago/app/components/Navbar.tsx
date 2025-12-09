@@ -9,7 +9,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import logo from "../assets/planago-logo-brown.svg";
-import { Form, NavLink } from "react-router";
+import { Form, NavLink, useNavigate } from "react-router";
 import { authClient } from "~/shared/auth/client";
 
 const navigation = [
@@ -22,11 +22,18 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Navbar() {
+type Props = {
+  isLoggedIn: boolean;
+};
+
+export default function Navbar({ isLoggedIn }: Props) {
+  const navigate = useNavigate();
   const handleSignOut = async () => {
     await authClient.signOut({
       fetchOptions: {
-        onSuccess: () => {},
+        onSuccess: () => {
+          navigate("/signin");
+        },
       },
     });
   };
@@ -117,20 +124,29 @@ export default function Navbar() {
                   </a>
                 </MenuItem>
                 <MenuItem>
-                  <Form
-                    method="post"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      handleSignOut();
-                    }}
-                  >
-                    <button
-                      type="submit"
-                      className="block w-full px-4 py-2 text-left text-sm font-medium text-accent hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
+                  {isLoggedIn ? (
+                    <Form
+                      method="post"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        handleSignOut();
+                      }}
                     >
-                      Logga ut
-                    </button>
-                  </Form>
+                      <button
+                        type="submit"
+                        className="block w-full px-4 py-2 text-left text-sm font-medium text-accent hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
+                      >
+                        Logga ut
+                      </button>
+                    </Form>
+                  ) : (
+                    <a
+                      href="/signin"
+                      className="block px-4 py-2 text-left text-sm font-medium text-accent hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
+                    >
+                      Logga in
+                    </a>
+                  )}
                 </MenuItem>
               </MenuItems>
             </Menu>

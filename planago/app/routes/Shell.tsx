@@ -1,9 +1,33 @@
 import { Outlet } from "react-router";
+import type { Route } from "./+types/Shell";
+import { requireUserMiddleware } from "~/middleware/requireUserMiddleware";
+import { userSessionContext } from "~/context/userSessionContext";
+import { db } from "~/shared/database";
+import { eq } from "drizzle-orm";
+import { user } from "~/shared/database/schema";
 
-export default function Shell() {
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
+export const middleware: Route.MiddlewareFunction[] = [requireUserMiddleware];
+
+export async function loader({ context }: { context: any }) {
+  const userSession = context.get(userSessionContext);
+
+  let isLoggedIn = false;
+
+  if (userSession.user?.email) {
+    const existingUser = await db
+      .select()
+      .from(user)
+      .where(eq(user.email, userSession.user.email));
+    isLoggedIn = existingUser.length > 0;
+  }
+
+  return { isLoggedIn };
+}
+
+export default function Shell({
+  loaderData,
+}: {
+  loaderData: { isLoggedIn: boolean };
+}) {
+  return <Outlet />;
 }

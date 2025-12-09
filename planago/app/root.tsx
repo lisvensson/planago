@@ -5,12 +5,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import { auth } from "~/shared/auth";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,7 +31,16 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+export async function loader({ request }: Route.ActionArgs) {
+  const userSession = await auth.api.getSession(request);
+
+  return { isLoggedIn: Boolean(userSession?.user) };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useLoaderData() as { isLoggedIn?: boolean } | undefined;
+  const isLoggedIn = data?.isLoggedIn ?? false;
+
   return (
     <html lang="en">
       <head>
@@ -39,7 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Navbar />
+        <Navbar isLoggedIn={isLoggedIn} />
         {children}
         <Footer />
         <ScrollRestoration />
