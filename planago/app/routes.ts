@@ -7,6 +7,7 @@ import {
 
 export default [
   index("routes/home.tsx"),
+  route("*", "./routes/NotFound.tsx"),
   route("signin", "./routes/SignIn.tsx"),
   route("api/auth/*", "routes/Auth.ts"),
   route("how-to-use", "./routes/HowToUse.tsx"),
