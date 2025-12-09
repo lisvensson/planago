@@ -18,13 +18,28 @@ export default function SignIn() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/",
+                callbackURL: "/planago/filter",
               })
             }
             className="w-full inline-flex items-center justify-center gap-x-2 rounded-md bg-primary px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent transition-colors"
           >
             <i className="fa-brands fa-google text-primary-foreground"></i>
             <span>Logga in med Google</span>
+          </button>
+        </div>
+        <div className="mt-6 space-y-4">
+          <button
+            type="button"
+            onClick={() =>
+              authClient.signIn.social({
+                provider: "microsoft",
+                callbackURL: "/planago/filter",
+              })
+            }
+            className="w-full inline-flex items-center justify-center gap-x-2 rounded-md bg-primary px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent transition-colors"
+          >
+            <i className="fa-brands fa-microsoft text-primary-foreground"></i>
+            <span>Logga in med Microsoft</span>
           </button>
         </div>
       </div>
