@@ -24,9 +24,10 @@ function classNames(...classes: string[]) {
 
 type Props = {
   isLoggedIn: boolean;
+  userImage?: string | null;
 };
 
-export default function Navbar({ isLoggedIn }: Props) {
+export default function Navbar({ isLoggedIn, userImage }: Props) {
   const navigate = useNavigate();
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -37,6 +38,7 @@ export default function Navbar({ isLoggedIn }: Props) {
       },
     });
   };
+
   return (
     <Disclosure
       as="nav"
@@ -97,15 +99,19 @@ export default function Navbar({ isLoggedIn }: Props) {
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">Open user menu</span>
                 <img
-                  alt=""
-                  src="https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1"
+                  alt="User avatar"
+                  src={
+                    userImage && userImage.trim() !== ""
+                      ? userImage
+                      : "https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1"
+                  }
                   className="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
                 />
               </MenuButton>
 
               <MenuItems
                 transition
-                className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg outline outline-border ..."
+                className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-background py-1 shadow-lg outline outline-border"
               >
                 <MenuItem>
                   <a

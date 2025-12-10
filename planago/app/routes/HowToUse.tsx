@@ -22,7 +22,7 @@ export default function HowToUse() {
                     <svg
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       className="absolute top-1 left-1 size-5 text-accent"
                     >
@@ -41,7 +41,7 @@ export default function HowToUse() {
                     <svg
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       className="absolute top-1 left-1 size-5 text-accent"
                     >
@@ -60,7 +60,7 @@ export default function HowToUse() {
                     <svg
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       className="absolute top-1 left-1 size-5 text-accent"
                     >

@@ -34,12 +34,22 @@ export const links: Route.LinksFunction = () => [
 export async function loader({ request }: Route.ActionArgs) {
   const userSession = await auth.api.getSession(request);
 
-  return { isLoggedIn: Boolean(userSession?.user) };
+  return {
+    isLoggedIn: Boolean(userSession?.user),
+    user: userSession?.user ?? null,
+  };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const data = useLoaderData() as { isLoggedIn?: boolean } | undefined;
+  const data = useLoaderData() as
+    | {
+        isLoggedIn?: boolean;
+        user?: { image?: string | null };
+      }
+    | undefined;
+
   const isLoggedIn = data?.isLoggedIn ?? false;
+  const userImage = data?.user?.image ?? null;
 
   return (
     <html lang="en">
@@ -50,7 +60,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Navbar isLoggedIn={isLoggedIn} />
+        <Navbar isLoggedIn={isLoggedIn} userImage={userImage} />
         {children}
         <Footer />
         <ScrollRestoration />
