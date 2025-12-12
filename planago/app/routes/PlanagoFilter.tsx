@@ -5,7 +5,15 @@ import { useState } from "react";
 export async function loader({ request }: Route.LoaderArgs) {
   const filterOptions = {
     locations: ["Eskilstuna", "Linköping", "Stockholm", "Uppsala", "Örebro"],
-    activityTypes: ["Museum", "Natur", "Mat & Dryck", "Barnvänligt"],
+    activityTypes: [
+      "Museum",
+      "Natur",
+      "Mat & Dryck",
+      "Barnvänligt",
+      "Shopping",
+      "Sport",
+      "Kultur",
+    ],
     timeFrames: ["Heldag", "Halvdag", "Kväll"],
   };
 
@@ -16,20 +24,120 @@ export async function loader({ request }: Route.LoaderArgs) {
   const activityTypes = searchParams.getAll("activityType");
   const timeFrame = searchParams.get("timeFrame");
 
-  const filters = {
-    location: location,
-    activityTypes: activityTypes,
-    timeFrame: timeFrame,
+  const filters = { location, activityTypes, timeFrame };
+
+  let plan: any[] = [];
+  let error: string | null = null;
+
+  const activityTypeMapping: Record<string, string[]> = {
+    Barnvänligt: [
+      "barnvänligt",
+      "djurpark",
+      "nöjespark",
+      "äventyrsbad",
+      "badhus",
+      "leos lekland",
+      "lekpark",
+      "barnaktivitet",
+    ],
+    Natur: [
+      "natur",
+      "park",
+      "nationalpark",
+      "naturreservat",
+      "promenadstråk",
+      "vandringsled",
+      "botanisk park",
+    ],
+    "Mat & Dryck": [
+      "mat & dryck",
+      "restaurang",
+      "fika",
+      "bageri",
+      "drink",
+      "bar",
+    ],
+    Shopping: ["shopping", "galleria", "shoppingcenter", "klädbutik"],
+    Sport: [
+      "sport",
+      "skidåkning",
+      "utegym",
+      "simning",
+      "gym",
+      "ridning",
+      "skridskor",
+      "träning",
+      "hälsa",
+    ],
+    Kultur: ["kultur", "teater", "bibliotek", "konsert", "bio"],
   };
 
-  return { filterOptions, result: filters };
+  if (location && activityTypes.length > 0) {
+    const mappedTypes: string[] = [];
+    for (const type of activityTypes) {
+      const mapped = activityTypeMapping[type] || [type];
+      mappedTypes.push(...mapped);
+    }
+
+    console.log(mappedTypes);
+
+    const query = `${mappedTypes.join(" ")} in ${location}`;
+    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+
+    try {
+      const response = await fetch(
+        `https://places.googleapis.com/v1/places:searchText?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-FieldMask":
+              "places.displayName,places.formattedAddress,places.googleMapsUri,places.regularOpeningHours,places.rating,places.id",
+          },
+          body: JSON.stringify({ textQuery: query }),
+        }
+      );
+
+      let data: any = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          error =
+            "Din sökning kunde inte behandlas. Kontrollera dina val och försök igen.";
+        } else if (response.status === 429) {
+          error =
+            "För många förfrågningar just nu. Vänta en stund och försök igen.";
+        } else {
+          error = `Ett oväntat fel inträffade (status: ${response.status}). Försök igen.`;
+        }
+      } else if (data.error) {
+        error = data.error.message || "Okänt API-fel";
+      } else if (!data.places || data.places.length === 0) {
+        error = "Inga platser matchade dina filter. Prova att ändra sökningen.";
+      } else {
+        plan = data.places;
+      }
+    } catch (error: any) {
+      console.error("Loader error:", error);
+      error = error.message || "Något gick fel vid hämtning av platser.";
+    }
+  }
+
+  return { filterOptions, result: filters, plan, error };
 }
 
 export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
-  const { filterOptions, result } = loaderData;
+  const { filterOptions, result, plan, error } = loaderData;
   console.log(result);
-  const [error, setError] = useState<string | null>(null);
+  console.log(plan);
+  console.log(error);
+  const [errorForm, setErrorForm] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
@@ -52,9 +160,9 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
             const anyChecked = Array.from(checkboxes).some((c) => c.checked);
             if (!anyChecked) {
               e.preventDefault();
-              setError("Du måste välja minst en aktivitetstyp");
+              setErrorForm("Du måste välja minst en aktivitetstyp");
             } else {
-              setError(null);
+              setErrorForm(null);
             }
           }}
         >
@@ -66,7 +174,7 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
               name="location"
               required
               defaultValue={searchParams.get("location") ?? ""}
-              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
+              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
             >
               <option value="">Välj område</option>
               {filterOptions.locations.map((location) => (
@@ -79,16 +187,16 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
 
           <fieldset
             className={`border rounded-md p-4 ${
-              error ? "border-accent" : "border-primary/30"
+              errorForm ? "border-accent" : "border-primary/30"
             }`}
           >
             <legend className="text-sm sm:text-base font-medium text-primary mb-2">
               Aktivitetstyp
             </legend>
 
-            {error && (
+            {errorForm && (
               <p className="mt-1 text-sm text-accent flex items-center gap-1">
-                {error}
+                {errorForm}
               </p>
             )}
 
@@ -122,7 +230,7 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
               name="timeFrame"
               required
               defaultValue={searchParams.get("timeFrame") ?? ""}
-              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
+              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
             >
               <option value="">Välj tidsram</option>
               {filterOptions.timeFrames.map((frame) => (
@@ -140,6 +248,26 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
             Skapa utflykt
           </button>
         </Form>
+        {plan && plan.length > 0 && (
+          <div className="mt-10 text-left">
+            <h2 className="text-lg font-semibold text-primary mb-4">
+              Förslag på platser
+            </h2>
+            <ul className="space-y-2 text-primary">
+              {loaderData.plan.map((place) => (
+                <li key={place.id}>
+                  <span className="font-medium">{place.displayName?.text}</span>{" "}
+                  – {place.formattedAddress}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {error && (
+          <div className="mt-4 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );
