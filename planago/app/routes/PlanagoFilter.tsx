@@ -14,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       "Sport",
       "Kultur",
     ],
-    timeFrames: ["Heldag", "Halvdag", "Kväll"],
+    timeFrames: ["Heldag", "Halvdag (förmiddag)", "Halvdag (eftermiddag)"],
   };
 
   const url = new URL(request.url);
@@ -26,7 +26,8 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const filters = { location, activityTypes, timeFrame };
 
-  let plan: any[] = [];
+  let places: any[] = [];
+  let generatedPlan: any[] = [];
   let error: string | null = null;
 
   const activityTypeMapping: Record<string, string[]> = {
@@ -79,8 +80,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       mappedTypes.push(...mapped);
     }
 
-    console.log(mappedTypes);
-
     const query = `${mappedTypes.join(" ")} in ${location}`;
     const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -120,7 +119,21 @@ export async function loader({ request }: Route.LoaderArgs) {
       } else if (!data.places || data.places.length === 0) {
         error = "Inga platser matchade dina filter. Prova att ändra sökningen.";
       } else {
-        plan = data.places;
+        places = data.places;
+
+        const slots: Record<string, string[]> = {
+          Heldag: ["10:00", "12:30", "14:00", "18:00"],
+          "Halvdag (förmiddag)": ["10:00", "12:00"],
+          "Halvdag (eftermiddag)": ["14:00", "17:00"],
+        };
+
+        const times = slots[timeFrame || "Heldag"] || [];
+        generatedPlan = places.slice(0, times.length).map((place, i) => ({
+          time: times[i],
+          name: place.displayName?.text,
+          address: place.formattedAddress,
+          link: place.googleMapsUri,
+        }));
       }
     } catch (error: any) {
       console.error("Loader error:", error);
@@ -128,15 +141,12 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
   }
 
-  return { filterOptions, result: filters, plan, error };
+  return { filterOptions, result: filters, places, generatedPlan, error };
 }
 
 export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
-  const { filterOptions, result, plan, error } = loaderData;
-  console.log(result);
-  console.log(plan);
-  console.log(error);
+  const { filterOptions, places, generatedPlan, error } = loaderData;
   const [errorForm, setErrorForm] = useState<string | null>(null);
 
   return (
@@ -248,13 +258,20 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
             Skapa utflykt
           </button>
         </Form>
-        {plan && plan.length > 0 && (
+
+        {error && (
+          <div className="mt-4 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
+            {error}
+          </div>
+        )}
+
+        {places && places.length > 0 && (
           <div className="mt-10 text-left">
             <h2 className="text-lg font-semibold text-primary mb-4">
               Förslag på platser
             </h2>
             <ul className="space-y-2 text-primary">
-              {loaderData.plan.map((place) => (
+              {places.map((place) => (
                 <li key={place.id}>
                   <span className="font-medium">{place.displayName?.text}</span>{" "}
                   – {place.formattedAddress}
@@ -263,9 +280,28 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
             </ul>
           </div>
         )}
-        {error && (
-          <div className="mt-4 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
-            {error}
+
+        {generatedPlan && generatedPlan.length > 0 && (
+          <div className="mt-10 text-left">
+            <h2 className="text-lg font-semibold text-primary mb-4">
+              Din dagplan
+            </h2>
+            <ul className="space-y-2 text-primary">
+              {generatedPlan.map((item) => (
+                <li key={item.time}>
+                  <span className="font-medium">{item.time}</span> – {item.name}{" "}
+                  ({item.address}){" "}
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    Visa på karta
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
