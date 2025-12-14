@@ -197,7 +197,7 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
               Planera din utflykt
             </h1>
             <p className="text-sm sm:text-base text-primary/75 mb-6">
-              Välj vad du vill göra och skapa sedan din dagplan.
+              Välj vad du vill göra och skapa sedan din resplan.
             </p>
           </>
         )}
@@ -299,7 +299,7 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
               type="submit"
               className="w-full rounded-md bg-primary px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold text-primary-foreground shadow hover:bg-primary/90"
             >
-              Skapa dagplan
+              Skapa resplan
             </button>
           </Form>
         )}
@@ -374,14 +374,14 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
                 type="submit"
                 className="flex-1 rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
               >
-                Spara dagplan
+                Spara resplan
               </button>
               <button
                 type="button"
                 onClick={() => setPlan([])}
                 className="flex-1 rounded-md bg-accent px-4 py-2 text-primary-foreground shadow hover:bg-accent/90"
               >
-                Skapa ny dagplan
+                Skapa ny resplan
               </button>
             </Form>
           </div>
