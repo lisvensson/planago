@@ -32,52 +32,61 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const activityTypeMapping: Record<string, string[]> = {
     Barnvänligt: [
-      "barnvänligt",
+      "lekland",
       "djurpark",
       "nöjespark",
-      "äventyrsbad",
-      "badhus",
-      "leos lekland",
-      "lekpark",
-      "barnaktivitet",
+      "bad",
+      "inomhuslek",
+      "familjeaktivitet",
     ],
-    Natur: [
-      "natur",
-      "park",
-      "nationalpark",
-      "naturreservat",
-      "promenadstråk",
-      "vandringsled",
-      "botanisk park",
-    ],
-    "Mat & Dryck": [
-      "mat & dryck",
-      "restaurang",
-      "fika",
-      "bageri",
-      "drink",
-      "bar",
-    ],
-    Shopping: ["shopping", "galleria", "shoppingcenter", "klädbutik"],
-    Sport: [
-      "sport",
-      "skidåkning",
-      "utegym",
-      "simning",
-      "gym",
-      "ridning",
-      "skridskor",
-      "träning",
-      "hälsa",
-    ],
-    Kultur: ["kultur", "teater", "bibliotek", "konsert", "bio"],
+    Natur: ["park", "natur", "reservat", "promenad"],
+    "Mat & Dryck": ["restaurang", "cafe", "bageri", "bar"],
+    Shopping: ["shopping", "galleria", "kläder"],
+    Sport: ["sport", "gym", "bowling", "simhall"],
+    Kultur: ["museum", "teater", "bibliotek", "konst"],
   };
+
+  const mapPlaceToCategory = (place: any) => {
+    const type = place.types || [];
+
+    if (type.some((x: string) => ["restaurant", "cafe", "bar"].includes(x)))
+      return "food";
+    return "activity";
+  };
+
+  type TimeFrame = "Heldag" | "Halvdag (förmiddag)" | "Halvdag (eftermiddag)";
+
+  const timeFrames: Record<
+    TimeFrame,
+    { time: string; type: "food" | "activity" }[]
+  > = {
+    Heldag: [
+      { time: "10:00", type: "activity" },
+      { time: "12:30", type: "food" },
+      { time: "14:00", type: "activity" },
+      { time: "18:00", type: "food" },
+    ],
+    "Halvdag (förmiddag)": [
+      { time: "10:00", type: "activity" },
+      { time: "12:00", type: "food" },
+    ],
+    "Halvdag (eftermiddag)": [
+      { time: "14:00", type: "activity" },
+      { time: "17:00", type: "food" },
+    ],
+  };
+
+  const selectedTimeFrame: TimeFrame =
+    timeFrame === "Heldag" ||
+    timeFrame === "Halvdag (förmiddag)" ||
+    timeFrame === "Halvdag (eftermiddag)"
+      ? timeFrame
+      : "Heldag";
 
   if (location && activityTypes.length > 0) {
     const mappedTypes: string[] = [];
     for (const type of activityTypes) {
-      const mapped = activityTypeMapping[type] || [type];
-      mappedTypes.push(...mapped);
+      mappedTypes.push(...(activityTypeMapping[type] || [type]));
     }
 
     const query = `${mappedTypes.join(" ")} in ${location}`;
@@ -91,7 +100,7 @@ export async function loader({ request }: Route.LoaderArgs) {
           headers: {
             "Content-Type": "application/json",
             "X-Goog-FieldMask":
-              "places.displayName,places.formattedAddress,places.googleMapsUri,places.regularOpeningHours,places.rating,places.id",
+              "places.displayName,places.formattedAddress,places.googleMapsUri,places.regularOpeningHours,places.rating,places.types,places.id",
           },
           body: JSON.stringify({ textQuery: query }),
         }
@@ -121,19 +130,44 @@ export async function loader({ request }: Route.LoaderArgs) {
       } else {
         places = data.places;
 
-        const slots: Record<string, string[]> = {
-          Heldag: ["10:00", "12:30", "14:00", "18:00"],
-          "Halvdag (förmiddag)": ["10:00", "12:00"],
-          "Halvdag (eftermiddag)": ["14:00", "17:00"],
+        function shuffleGeneratedPlan<T>(array: T[]): T[] {
+          const plan = [...array];
+          for (let i = plan.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [plan[i], plan[j]] = [plan[j], plan[i]];
+          }
+          return plan;
+        }
+
+        const buckets: Record<"food" | "activity", any[]> = {
+          food: [],
+          activity: [],
         };
 
-        const times = slots[timeFrame || "Heldag"] || [];
-        generatedPlan = places.slice(0, times.length).map((place, i) => ({
-          time: times[i],
-          name: place.displayName?.text,
-          address: place.formattedAddress,
-          link: place.googleMapsUri,
-        }));
+        for (const place of places) {
+          const category = mapPlaceToCategory(place);
+          buckets[category].push(place);
+        }
+
+        buckets.food = shuffleGeneratedPlan(buckets.food);
+        buckets.activity = shuffleGeneratedPlan(buckets.activity);
+
+        const frame = timeFrames[selectedTimeFrame];
+        generatedPlan = frame
+          .map((slot: { time: string; type: "food" | "activity" }) => {
+            const pool = buckets[slot.type];
+            if (!pool?.length) return null;
+
+            const place = pool.shift();
+            return {
+              time: slot.time,
+              name: place.displayName?.text,
+              address: place.formattedAddress,
+              link: place.googleMapsUri,
+              category: slot.type,
+            };
+          })
+          .filter(Boolean);
       }
     } catch (error: any) {
       console.error("Loader error:", error);
@@ -295,7 +329,7 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 underline"
+                    className="text-accent underline"
                   >
                     Visa på karta
                   </a>
