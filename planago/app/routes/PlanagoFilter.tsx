@@ -1,6 +1,6 @@
 import { Form, useSearchParams } from "react-router";
 import type { Route } from "./+types/PlanagoFilter";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const filterOptions = {
@@ -23,8 +23,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   const location = searchParams.get("location");
   const activityTypes = searchParams.getAll("activityType");
   const timeFrame = searchParams.get("timeFrame");
-
-  const filters = { location, activityTypes, timeFrame };
 
   let places: any[] = [];
   let generatedPlan: any[] = [];
@@ -175,123 +173,136 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
   }
 
-  return { filterOptions, result: filters, places, generatedPlan, error };
+  return { filterOptions, generatedPlan, error };
 }
 
 export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
-  const { filterOptions, places, generatedPlan, error } = loaderData;
+  const { filterOptions, generatedPlan: initialPlan, error } = loaderData;
   const [errorForm, setErrorForm] = useState<string | null>(null);
+  const [plan, setPlan] = useState(initialPlan ?? []);
+
+  useEffect(() => {
+    setPlan(initialPlan ?? []);
+  }, [initialPlan]);
+
+  const hasPlan = plan && plan.length > 0;
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
       <div className="w-full max-w-md sm:max-w-lg lg:max-w-xl text-center">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
-          Planera din utflykt
-        </h1>
-        <p className="text-sm sm:text-base text-primary/75 mb-6">
-          Välj vad du vill göra och skapa sedan din utflykt.
-        </p>
+        {!hasPlan && (
+          <>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
+              Planera din utflykt
+            </h1>
+            <p className="text-sm sm:text-base text-primary/75 mb-6">
+              Välj vad du vill göra och skapa sedan din dagplan.
+            </p>
+          </>
+        )}
 
-        <Form
-          method="get"
-          className="space-y-6 sm:space-y-8 lg:space-y-10 text-left"
-          onSubmit={(e) => {
-            const checkboxes =
-              e.currentTarget.querySelectorAll<HTMLInputElement>(
-                'input[name="activityType"]'
-              );
-            const anyChecked = Array.from(checkboxes).some((c) => c.checked);
-            if (!anyChecked) {
-              e.preventDefault();
-              setErrorForm("Du måste välja minst en aktivitetstyp");
-            } else {
-              setErrorForm(null);
-            }
-          }}
-        >
-          <fieldset className="border border-primary/30 rounded-md p-4">
-            <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-              Plats
-            </legend>
-            <select
-              name="location"
-              required
-              defaultValue={searchParams.get("location") ?? ""}
-              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
-            >
-              <option value="">Välj område</option>
-              {filterOptions.locations.map((location) => (
-                <option key={location} value={location}>
-                  {location}
-                </option>
-              ))}
-            </select>
-          </fieldset>
-
-          <fieldset
-            className={`border rounded-md p-4 ${
-              errorForm ? "border-accent" : "border-primary/30"
-            }`}
+        {!hasPlan && (
+          <Form
+            method="get"
+            className="space-y-6 sm:space-y-8 lg:space-y-10 text-left"
+            onSubmit={(e) => {
+              const checkboxes =
+                e.currentTarget.querySelectorAll<HTMLInputElement>(
+                  'input[name="activityType"]'
+                );
+              const anyChecked = Array.from(checkboxes).some((c) => c.checked);
+              if (!anyChecked) {
+                e.preventDefault();
+                setErrorForm("Du måste välja minst en aktivitetstyp");
+              } else {
+                setErrorForm(null);
+              }
+            }}
           >
-            <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-              Aktivitetstyp
-            </legend>
+            <fieldset className="border border-primary/30 rounded-md p-4">
+              <legend className="text-sm sm:text-base font-medium text-primary mb-2">
+                Plats
+              </legend>
+              <select
+                name="location"
+                required
+                defaultValue={searchParams.get("location") ?? ""}
+                className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
+              >
+                <option value="">Välj område</option>
+                {filterOptions.locations.map((location) => (
+                  <option key={location} value={location}>
+                    {location}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
 
-            {errorForm && (
-              <p className="mt-1 text-sm text-accent flex items-center gap-1">
-                {errorForm}
-              </p>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-              {filterOptions.activityTypes.map((type) => (
-                <label
-                  key={type}
-                  className="flex items-center gap-2 text-primary text-sm sm:text-base cursor-pointer hover:bg-primary/5 rounded-md px-2 py-1 transition"
-                >
-                  <input
-                    type="checkbox"
-                    name="activityType"
-                    value={type}
-                    defaultChecked={searchParams.has(
-                      "activityType",
-                      String(type)
-                    )}
-                    className="rounded border-primary/30 text-primary focus:ring-primary"
-                  />
-                  {type}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <fieldset className="border border-primary/30 rounded-md p-4">
-            <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-              Tidsram
-            </legend>
-            <select
-              name="timeFrame"
-              required
-              defaultValue={searchParams.get("timeFrame") ?? ""}
-              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
+            <fieldset
+              className={`border rounded-md p-4 ${
+                errorForm ? "border-accent" : "border-primary/30"
+              }`}
             >
-              <option value="">Välj tidsram</option>
-              {filterOptions.timeFrames.map((frame) => (
-                <option key={frame} value={frame}>
-                  {frame}
-                </option>
-              ))}
-            </select>
-          </fieldset>
+              <legend className="text-sm sm:text-base font-medium text-primary mb-2">
+                Aktivitetstyp
+              </legend>
 
-          <button
-            type="submit"
-            className="w-full rounded-md bg-primary px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold text-primary-foreground shadow hover:bg-primary/90"
-          >
-            Skapa utflykt
-          </button>
-        </Form>
+              {errorForm && (
+                <p className="mt-1 text-sm text-accent flex items-center gap-1">
+                  {errorForm}
+                </p>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                {filterOptions.activityTypes.map((type) => (
+                  <label
+                    key={type}
+                    className="flex items-center gap-2 text-primary text-sm sm:text-base cursor-pointer hover:bg-primary/5 rounded-md px-2 py-1 transition"
+                  >
+                    <input
+                      type="checkbox"
+                      name="activityType"
+                      value={type}
+                      defaultChecked={searchParams.has(
+                        "activityType",
+                        String(type)
+                      )}
+                      className="rounded border-primary/30 text-primary focus:ring-primary"
+                    />
+                    {type}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset className="border border-primary/30 rounded-md p-4">
+              <legend className="text-sm sm:text-base font-medium text-primary mb-2">
+                Tidsram
+              </legend>
+              <select
+                name="timeFrame"
+                required
+                defaultValue={searchParams.get("timeFrame") ?? ""}
+                className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
+              >
+                <option value="">Välj tidsram</option>
+                {filterOptions.timeFrames.map((frame) => (
+                  <option key={frame} value={frame}>
+                    {frame}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
+
+            <button
+              type="submit"
+              className="w-full rounded-md bg-primary px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold text-primary-foreground shadow hover:bg-primary/90"
+            >
+              Skapa dagplan
+            </button>
+          </Form>
+        )}
 
         {error && (
           <div className="mt-4 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
@@ -299,43 +310,80 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
           </div>
         )}
 
-        {places && places.length > 0 && (
-          <div className="mt-10 text-left">
-            <h2 className="text-lg font-semibold text-primary mb-4">
-              Förslag på platser
-            </h2>
-            <ul className="space-y-2 text-primary">
-              {places.map((place) => (
-                <li key={place.id}>
-                  <span className="font-medium">{place.displayName?.text}</span>{" "}
-                  – {place.formattedAddress}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {generatedPlan && generatedPlan.length > 0 && (
-          <div className="mt-10 text-left">
-            <h2 className="text-lg font-semibold text-primary mb-4">
+        {hasPlan && (
+          <div className="mt-10 text-center">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-6">
               Din dagplan
             </h2>
-            <ul className="space-y-2 text-primary">
-              {generatedPlan.map((item) => (
-                <li key={item.time}>
-                  <span className="font-medium">{item.time}</span> – {item.name}{" "}
-                  ({item.address}){" "}
-                  <a
-                    href={item.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent underline"
-                  >
-                    Visa på karta
-                  </a>
-                </li>
-              ))}
-            </ul>
+
+            <div className="overflow-x-auto rounded-lg shadow">
+              <table className="min-w-full bg-background border border-primary/20 rounded-lg">
+                <thead className="bg-primary/10">
+                  <tr>
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+                      Tid
+                    </th>
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+                      Plats
+                    </th>
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+                      Adress
+                    </th>
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+                      Hitta hit
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {plan.map((item) => (
+                    <tr
+                      key={item.time}
+                      className="border-t border-primary/10 hover:bg-primary/5 transition"
+                    >
+                      <td className="px-3 py-2 text-primary font-medium text-xs sm:text-sm">
+                        {item.time}
+                      </td>
+                      <td className="px-3 py-2 text-primary text-xs sm:text-sm">
+                        {item.name}
+                      </td>
+                      <td className="px-3 py-2 text-primary text-xs sm:text-sm">
+                        {item.address}
+                      </td>
+                      <td className="px-3 py-2 text-xs sm:text-sm">
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-accent underline hover:text-accent/80"
+                        >
+                          Visa på karta
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <Form
+              method="post"
+              className="mt-6 flex flex-col sm:flex-row gap-3"
+            >
+              <input type="hidden" name="plan" value={JSON.stringify(plan)} />
+              <button
+                type="submit"
+                className="flex-1 rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
+              >
+                Spara dagplan
+              </button>
+              <button
+                type="button"
+                onClick={() => setPlan([])}
+                className="flex-1 rounded-md bg-accent px-4 py-2 text-primary-foreground shadow hover:bg-accent/90"
+              >
+                Skapa ny dagplan
+              </button>
+            </Form>
           </div>
         )}
       </div>
