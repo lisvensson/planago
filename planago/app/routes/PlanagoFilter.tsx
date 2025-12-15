@@ -1,6 +1,9 @@
-import { Form, useSearchParams } from "react-router";
+import { Form, redirect, useSearchParams } from "react-router";
 import type { Route } from "./+types/PlanagoFilter";
 import { useEffect, useState } from "react";
+import { userSessionContext } from "~/context/userSessionContext";
+import { db } from "~/shared/database";
+import { plan } from "~/shared/database/schema";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const filterOptions = {
@@ -169,14 +172,52 @@ export async function loader({ request }: Route.LoaderArgs) {
       }
     } catch (error: any) {
       console.error("Loader error:", error);
-      error = error.message || "Något gick fel vid hämtning av platser.";
+      error = error.message || "Något gick fel vid hämtning.";
     }
   }
 
   return { filterOptions, generatedPlan, error };
 }
 
-export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
+export async function action({ request, context }: Route.ActionArgs) {
+  try {
+    const formData = await request.formData();
+    const location = formData.get("location") as string;
+    const activityTypes = formData.getAll("activityType") as string[];
+    const timeFrame = formData.get("timeFrame") as string;
+    const planJson = formData.get("plan") as string;
+
+    const userSession = context.get(userSessionContext);
+    if (!userSession || !userSession.user) {
+      throw new Response("Not authorized", { status: 401 });
+    }
+
+    const userId = userSession.user.id;
+    const parsedPlan = JSON.parse(planJson);
+    const newId = crypto.randomUUID();
+
+    await db.insert(plan).values({
+      id: newId,
+      userId,
+      title: `Resplan för utflykt till ${location}`,
+      location,
+      activityTypes,
+      timeFrame,
+      activities: parsedPlan,
+      createdAt: new Date(),
+    });
+
+    return redirect(`/planago/plan/${newId}`);
+  } catch (error: any) {
+    console.error("Error saving plan:", error);
+    return { error: "Det gick inte att spara din resplan." };
+  }
+}
+
+export default function PlanagoFilter({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
   const { filterOptions, generatedPlan: initialPlan, error } = loaderData;
   const [errorForm, setErrorForm] = useState<string | null>(null);
@@ -313,7 +354,7 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
         {hasPlan && (
           <div className="mt-10 text-center">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-6">
-              Din dagplan
+              Din resplan
             </h2>
 
             <div className="overflow-x-auto rounded-lg shadow">
@@ -337,7 +378,7 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
                 <tbody>
                   {plan.map((item) => (
                     <tr
-                      key={item.time}
+                      key={item.link}
                       className="border-t border-primary/10 hover:bg-primary/5 transition"
                     >
                       <td className="px-3 py-2 text-primary font-medium text-xs sm:text-sm">
@@ -369,6 +410,24 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
               method="post"
               className="mt-6 flex flex-col sm:flex-row gap-3"
             >
+              <input
+                type="hidden"
+                name="location"
+                value={searchParams.get("location") ?? ""}
+              />
+              {searchParams.getAll("activityType").map((type) => (
+                <input
+                  key={type}
+                  type="hidden"
+                  name="activityType"
+                  value={type}
+                />
+              ))}
+              <input
+                type="hidden"
+                name="timeFrame"
+                value={searchParams.get("timeFrame") ?? ""}
+              />
               <input type="hidden" name="plan" value={JSON.stringify(plan)} />
               <button
                 type="submit"
@@ -384,6 +443,11 @@ export default function PlanagoFilter({ loaderData }: Route.ComponentProps) {
                 Skapa ny resplan
               </button>
             </Form>
+          </div>
+        )}
+        {actionData?.error && (
+          <div className="mt-6 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
+            {actionData.error}
           </div>
         )}
       </div>

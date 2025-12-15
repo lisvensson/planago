@@ -68,7 +68,10 @@ export const plan = pgTable("plan", {
   title: text(),
   location: text(),
   timeFrame: text(),
-  activities: jsonb().notNull(),
+  activityTypes: text().array(),
+  activities: jsonb()
+    .notNull()
+    .$type<{ time: string; name: string; address: string; link: string }[]>(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp(),
 });
