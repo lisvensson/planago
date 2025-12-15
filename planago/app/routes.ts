@@ -15,6 +15,7 @@ export default [
   layout("./routes/Shell.tsx", [
     route("planago/filter", "./routes/PlanagoFilter.tsx"),
     route("planago/plan/:planId", "./routes/PlanagoPlan.tsx"),
+    route("planago/edit-plan/:planId", "./routes/PlanagoEditPlan.tsx"),
     route("account/saved-plans", "./routes/AccountSavedPlans.tsx"),
     route("account/settings", "./routes/AccountSettings.tsx"),
   ]),
