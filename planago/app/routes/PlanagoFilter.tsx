@@ -230,8 +230,8 @@ export default function PlanagoFilter({
   const hasPlan = plan && plan.length > 0;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
-      <div className="w-full max-w-md sm:max-w-lg lg:max-w-xl text-center">
+    <div className="min-h-screen bg-background px-4 py-12">
+      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         {!hasPlan && (
           <>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
@@ -357,40 +357,55 @@ export default function PlanagoFilter({
               Din resplan
             </h2>
 
-            <div className="overflow-x-auto rounded-lg shadow">
-              <table className="min-w-full bg-background border border-primary/20 rounded-lg">
-                <thead className="bg-primary/10">
-                  <tr>
-                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+            <div className="overflow-x-auto">
+              <table className="table-auto w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-primary/40">
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary text-left">
                       Tid
                     </th>
-                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary text-left hidden sm:table-cell">
                       Plats
                     </th>
-                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary text-left hidden sm:table-cell">
                       Adress
                     </th>
-                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary">
+                    <th className="px-3 py-2 text-xs sm:text-sm font-semibold text-primary text-left hidden sm:table-cell">
                       Hitta hit
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {plan.map((item) => (
+                  {plan.map((item: any) => (
                     <tr
                       key={item.link}
-                      className="border-t border-primary/10 hover:bg-primary/5 transition"
+                      className="border-b border-primary/20 hover:bg-primary/5 transition"
                     >
-                      <td className="px-3 py-2 text-primary font-medium text-xs sm:text-sm">
-                        {item.time}
+                      <td className="px-3 py-2 text-primary font-medium text-sm">
+                        <p>{item.time}</p>
+                        {/* Mobil */}
+                        <div className="sm:hidden mt-2 text-xs text-primary/70 space-y-1">
+                          <p>Plats: {item.name}</p>
+                          <p>Adress: {item.address}</p>
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent underline hover:text-accent/80 block"
+                          >
+                            Visa på karta
+                          </a>
+                        </div>
                       </td>
-                      <td className="px-3 py-2 text-primary text-xs sm:text-sm">
+
+                      {/* Desktop */}
+                      <td className="px-3 py-2 text-primary text-sm hidden sm:table-cell">
                         {item.name}
                       </td>
-                      <td className="px-3 py-2 text-primary text-xs sm:text-sm">
+                      <td className="px-3 py-2 text-primary text-sm hidden sm:table-cell">
                         {item.address}
                       </td>
-                      <td className="px-3 py-2 text-xs sm:text-sm">
+                      <td className="px-3 py-2 text-sm hidden sm:table-cell">
                         <a
                           href={item.link}
                           target="_blank"
@@ -445,6 +460,7 @@ export default function PlanagoFilter({
             </Form>
           </div>
         )}
+
         {actionData?.error && (
           <div className="mt-6 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
             {actionData.error}
