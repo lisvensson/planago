@@ -212,7 +212,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
           activities,
           updatedAt: new Date(),
         })
-        .where(and(eq(plan.id, params.planId), eq(plan.userId, userId))); // <-- checka ägare
+        .where(and(eq(plan.id, params.planId), eq(plan.userId, userId)));
 
       return redirect(`/planago/plan/${params.planId}`);
     }
