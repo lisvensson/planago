@@ -1,7 +1,7 @@
 import { userSessionContext } from "~/context/userSessionContext";
 import { db } from "~/shared/database";
 import { plan } from "~/shared/database/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import type { Route } from "./+types/AccountSavedPlans";
 import { Form, Link, redirect } from "react-router";
 
@@ -22,8 +22,34 @@ export async function loader({ context }: Route.LoaderArgs) {
   }
 }
 
+export async function action({ request, context }: Route.ActionArgs) {
+  try {
+    const userSession = context.get(userSessionContext);
+    if (!userSession || !userSession.user) {
+      throw new Response("Not authenticated", { status: 401 });
+    }
+
+    const userId = userSession.user.id;
+    const formData = await request.formData();
+    const planId = formData.get("planId");
+
+    if (!planId || typeof planId !== "string") {
+      throw new Response("Plan ID saknas eller ogiltigt", { status: 400 });
+    }
+    await db
+      .delete(plan)
+      .where(and(eq(plan.id, planId), eq(plan.userId, userId)));
+
+    return redirect("/account/saved-plans");
+  } catch (error) {
+    console.error("Error deleting plan:", error);
+    return { error: "Det gick inte att radera resplan" };
+  }
+}
+
 export default function AccountSavedPlans({
   loaderData,
+  actionData,
 }: Route.ComponentProps) {
   const { plans } = loaderData;
 
@@ -130,14 +156,23 @@ export default function AccountSavedPlans({
                     </td>
 
                     <td className="px-3 py-2 text-sm font-semibold text-accent hidden sm:table-cell">
-                      <Form>
-                        <button className="hover:underline">Radera</button>
+                      <Form method="post">
+                        <input type="hidden" name="planId" value={plan.id} />
+                        <button type="submit" className="hover:underline">
+                          Radera
+                        </button>
                       </Form>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {actionData?.error && (
+          <div className="mt-6 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
+            {actionData.error}
           </div>
         )}
       </div>
