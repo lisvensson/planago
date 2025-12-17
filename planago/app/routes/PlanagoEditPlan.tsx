@@ -5,6 +5,12 @@ import { eq, and } from "drizzle-orm";
 import { Form, redirect } from "react-router";
 import { useEffect, useState } from "react";
 import { userSessionContext } from "~/context/userSessionContext";
+import {
+  generatePlan,
+  getSelectedTimeFrame,
+  mapActivityTypes,
+} from "~/models/planUtils";
+import { filterOptions } from "~/models/planConfig";
 
 export async function loader({ request, params, context }: Route.LoaderArgs) {
   const userSession = context.get(userSessionContext);
@@ -30,20 +36,6 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
 
   const currentPlan = existing[0];
 
-  const filterOptions = {
-    locations: ["Eskilstuna", "Linköping", "Stockholm", "Uppsala", "Örebro"],
-    activityTypes: [
-      "Museum",
-      "Natur",
-      "Mat & Dryck",
-      "Barnvänligt",
-      "Shopping",
-      "Sport",
-      "Kultur",
-    ],
-    timeFrames: ["Heldag", "Halvdag (förmiddag)", "Halvdag (eftermiddag)"],
-  };
-
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
@@ -57,63 +49,8 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
   let generatedPlan: any[] = [];
   let error: string | null = null;
 
-  const activityTypeMapping: Record<string, string[]> = {
-    Barnvänligt: [
-      "lekland",
-      "djurpark",
-      "nöjespark",
-      "bad",
-      "inomhuslek",
-      "familjeaktivitet",
-    ],
-    Natur: ["park", "natur", "reservat", "promenad"],
-    "Mat & Dryck": ["restaurang", "cafe", "bageri", "bar"],
-    Shopping: ["shopping", "galleria", "kläder"],
-    Sport: ["sport", "gym", "bowling", "simhall"],
-    Kultur: ["museum", "teater", "bibliotek", "konst"],
-  };
-
-  const mapPlaceToCategory = (place: any) => {
-    const type = place.types || [];
-    if (type.some((x: string) => ["restaurant", "cafe", "bar"].includes(x)))
-      return "food";
-    return "activity";
-  };
-
-  type TimeFrame = "Heldag" | "Halvdag (förmiddag)" | "Halvdag (eftermiddag)";
-  const timeFrames: Record<
-    TimeFrame,
-    { time: string; type: "food" | "activity" }[]
-  > = {
-    Heldag: [
-      { time: "10:00", type: "activity" },
-      { time: "12:30", type: "food" },
-      { time: "14:00", type: "activity" },
-      { time: "18:00", type: "food" },
-    ],
-    "Halvdag (förmiddag)": [
-      { time: "10:00", type: "activity" },
-      { time: "12:00", type: "food" },
-    ],
-    "Halvdag (eftermiddag)": [
-      { time: "14:00", type: "activity" },
-      { time: "17:00", type: "food" },
-    ],
-  };
-
-  const selectedTimeFrame: TimeFrame =
-    timeFrame === "Heldag" ||
-    timeFrame === "Halvdag (förmiddag)" ||
-    timeFrame === "Halvdag (eftermiddag)"
-      ? timeFrame
-      : "Heldag";
-
   if (location && activityTypes.length > 0) {
-    const mappedTypes: string[] = [];
-    for (const type of activityTypes) {
-      mappedTypes.push(...(activityTypeMapping[type] || [type]));
-    }
-
+    const mappedTypes = mapActivityTypes(activityTypes);
     const query = `${mappedTypes.join(" ")} in ${location}`;
     const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
@@ -131,51 +68,32 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
         }
       );
 
-      const data = await response.json();
+      let data: any = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
       if (!response.ok) {
-        error = `Fel vid sökning (status: ${response.status})`;
+        if (response.status === 400) {
+          error =
+            "Din sökning kunde inte behandlas. Kontrollera dina val och försök igen.";
+        } else if (response.status === 429) {
+          error =
+            "För många förfrågningar just nu. Vänta en stund och försök igen.";
+        } else {
+          error = `Ett oväntat fel inträffade (status: ${response.status}). Försök igen.`;
+        }
+      } else if (data.error) {
+        error = data.error.message || "Okänt API-fel";
       } else if (!data.places || data.places.length === 0) {
-        error = "Inga platser matchade dina filter.";
+        error = "Inga platser matchade dina filter. Prova att ändra sökningen.";
       } else {
-        const places = data.places;
-
-        function shuffle<T>(arr: T[]): T[] {
-          const copy = [...arr];
-          for (let i = copy.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [copy[i], copy[j]] = [copy[j], copy[i]];
-          }
-          return copy;
-        }
-
-        const buckets: Record<"food" | "activity", any[]> = {
-          food: [],
-          activity: [],
-        };
-        for (const place of places) {
-          const category = mapPlaceToCategory(place);
-          buckets[category].push(place);
-        }
-
-        buckets.food = shuffle(buckets.food);
-        buckets.activity = shuffle(buckets.activity);
-
-        const frame = timeFrames[selectedTimeFrame];
-        generatedPlan = frame
-          .map((slot) => {
-            const pool = buckets[slot.type];
-            if (!pool?.length) return null;
-            const place = pool.shift();
-            return {
-              time: slot.time,
-              name: place.displayName?.text,
-              address: place.formattedAddress,
-              link: place.googleMapsUri,
-              category: slot.type,
-            };
-          })
-          .filter(Boolean);
+        generatedPlan = generatePlan(
+          data.places,
+          getSelectedTimeFrame(timeFrame ?? "Heldag")
+        );
       }
     } catch (error: any) {
       console.error("Loader error:", error);
