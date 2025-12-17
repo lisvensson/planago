@@ -130,7 +130,7 @@ export default function PlanagoFilter({
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-12">
         {!hasPlan && (
           <>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">

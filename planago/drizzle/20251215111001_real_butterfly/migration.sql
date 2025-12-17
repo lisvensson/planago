@@ -1,1 +1,0 @@
-ALTER TABLE "plan" ADD COLUMN "activity_types" text[];

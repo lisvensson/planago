@@ -1,8 +1,8 @@
-import { createContext } from 'react-router'
+import { createContext } from "react-router";
 
 export type UserSession = {
-  session: { token: string; expiresAt: string }
-  user: { id: string; email: string; name: string }
-}
+  session: { token: string; expiresAt: string };
+  user: { id: string; email: string; name: string; image: string };
+};
 
-export const userSessionContext = createContext<UserSession | null>(null)
+export const userSessionContext = createContext<UserSession | null>(null);

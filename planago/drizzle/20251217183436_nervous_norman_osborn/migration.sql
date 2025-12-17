@@ -20,6 +20,7 @@ CREATE TABLE "plan" (
 	"title" text,
 	"location" text,
 	"time_frame" text,
+	"activity_types" text[],
 	"activities" jsonb NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp
