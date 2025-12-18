@@ -131,100 +131,62 @@ export default function PlanagoFilter({
   return (
     <div className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
-        {!hasPlan && (
-          <>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
-              Planera din utflykt
-            </h1>
-            <p className="text-sm sm:text-base text-primary/75 mb-6">
-              Välj vad du vill göra och skapa sedan din resplan.
-            </p>
-          </>
-        )}
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
+          Planera din utflykt
+        </h1>
+        <p className="text-sm sm:text-base text-primary/75 mb-6">
+          Välj vad du vill göra och skapa sedan din resplan.
+        </p>
 
-        {!hasPlan && (
-          <Form
-            method="get"
-            className="space-y-6 sm:space-y-8 lg:space-y-10 text-left"
-            onSubmit={(e) => {
-              const checkboxes =
-                e.currentTarget.querySelectorAll<HTMLInputElement>(
-                  'input[name="activityType"]'
-                );
-              const anyChecked = Array.from(checkboxes).some((c) => c.checked);
-              if (!anyChecked) {
-                e.preventDefault();
-                setErrorForm("Du måste välja minst en aktivitetstyp");
-              } else {
-                setErrorForm(null);
-              }
-            }}
-          >
-            <fieldset className="border border-primary/30 rounded-md p-4">
-              <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-                Plats
-              </legend>
+        <Form
+          method="get"
+          className="space-y-10 text-left"
+          onSubmit={(e) => {
+            const checkboxes =
+              e.currentTarget.querySelectorAll<HTMLInputElement>(
+                'input[name="activityType"]'
+              );
+            const anyChecked = Array.from(checkboxes).some((c) => c.checked);
+            if (!anyChecked) {
+              e.preventDefault();
+              setErrorForm("Du måste välja minst en aktivitetstyp");
+            } else {
+              setErrorForm(null);
+            }
+          }}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
+                <i className="fa-solid fa-map-location-dot"></i>
+              </span>
               <select
                 name="location"
                 required
                 defaultValue={searchParams.get("location") ?? ""}
-                className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
+                className="w-full rounded-lg bg-background pl-10 pr-10 py-3 text-primary text-sm sm:text-base border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/40 transition appearance-none"
               >
-                <option value="">Välj område</option>
+                <option value="">Välj plats</option>
                 {filterOptions.locations.map((location) => (
                   <option key={location} value={location}>
                     {location}
                   </option>
                 ))}
               </select>
-            </fieldset>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-primary/60">
+                <i className="fa-solid fa-chevron-down"></i>
+              </span>
+            </div>
 
-            <fieldset
-              className={`border rounded-md p-4 ${
-                errorForm ? "border-accent" : "border-primary/30"
-              }`}
-            >
-              <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-                Aktivitetstyp
-              </legend>
-
-              {errorForm && (
-                <p className="mt-1 text-sm text-accent flex items-center gap-1">
-                  {errorForm}
-                </p>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                {filterOptions.activityTypes.map((type) => (
-                  <label
-                    key={type}
-                    className="flex items-center gap-2 text-primary text-sm sm:text-base cursor-pointer hover:bg-primary/5 rounded-md px-2 py-1 transition"
-                  >
-                    <input
-                      type="checkbox"
-                      name="activityType"
-                      value={type}
-                      defaultChecked={searchParams.has(
-                        "activityType",
-                        String(type)
-                      )}
-                      className="rounded border-primary/30 text-primary focus:ring-primary"
-                    />
-                    {type}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <fieldset className="border border-primary/30 rounded-md p-4">
-              <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-                Tidsram
-              </legend>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
+                <i className="fa-solid fa-clock"></i>
+              </span>
               <select
                 name="timeFrame"
                 required
                 defaultValue={searchParams.get("timeFrame") ?? ""}
-                className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
+                className="w-full rounded-lg bg-background pl-10 pr-10 py-3 text-primary text-sm sm:text-base border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/40 transition appearance-none"
               >
                 <option value="">Välj tidsram</option>
                 {filterOptions.timeFrames.map((frame) => (
@@ -233,16 +195,65 @@ export default function PlanagoFilter({
                   </option>
                 ))}
               </select>
-            </fieldset>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-primary/60">
+                <i className="fa-solid fa-chevron-down"></i>
+              </span>
+            </div>
+          </div>
 
-            <button
-              type="submit"
-              className="w-full rounded-md bg-primary px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold text-primary-foreground shadow hover:bg-primary/90"
-            >
-              Skapa resplan
-            </button>
-          </Form>
-        )}
+          <div className="space-y-3">
+            <h3 className="text-base sm:text-lg font-semibold text-primary">
+              Aktivitetstyp
+            </h3>
+            {errorForm && (
+              <p className="text-sm text-accent flex items-center gap-1">
+                {errorForm}
+              </p>
+            )}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {filterOptions.activityTypes.map((type) => (
+                <label key={type} className="cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="activityType"
+                    value={type}
+                    defaultChecked={searchParams.has(
+                      "activityType",
+                      String(type)
+                    )}
+                    className="peer hidden"
+                  />
+                  <div
+                    className="flex items-center justify-center gap-2 rounded-lg bg-background border border-primary/20 px-3 py-2 transition 
+                      peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary peer-checked:font-semibold"
+                  >
+                    <span>{type}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+          {!hasPlan && (
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+              <button
+                type="submit"
+                className="w-full md:w-auto flex-1 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-md hover:bg-primary/90 hover:shadow-lg transition"
+              >
+                Skapa resplan
+              </button>
+
+              <button
+                type="reset"
+                onClick={() => {
+                  setErrorForm(null);
+                }}
+                className="w-full md:w-auto flex-1 rounded-xl bg-accent px-6 py-3 text-base font-semibold text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg transition"
+              >
+                Rensa filter
+              </button>
+            </div>
+          )}
+        </Form>
 
         {error && (
           <div className="mt-4 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">

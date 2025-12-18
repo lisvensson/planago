@@ -174,7 +174,7 @@ export default function PlanagoEditPlan({
         </p>
 
         <Form
-          className="space-y-6 sm:space-y-8 lg:space-y-10 text-left"
+          className="space-y-10 text-left"
           onSubmit={(e) => {
             const checkboxes =
               e.currentTarget.querySelectorAll<HTMLInputElement>(
@@ -189,75 +189,81 @@ export default function PlanagoEditPlan({
             }
           }}
         >
-          <fieldset className="border border-primary/30 rounded-md p-4">
-            <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-              Plats
-            </legend>
-            <select
-              name="location"
-              required
-              defaultValue={currentPlan.location ?? ""}
-              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
-            >
-              <option value="">Välj område</option>
-              {filterOptions.locations.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
-          </fieldset>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
+                <i className="fa-solid fa-map-location-dot"></i>
+              </span>
+              <select
+                name="location"
+                required
+                defaultValue={currentPlan.location ?? ""}
+                className="w-full rounded-lg bg-background pl-10 pr-10 py-3 text-primary text-sm sm:text-base border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/40 transition appearance-none"
+              >
+                <option value="">Välj plats</option>
+                {filterOptions.locations.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </select>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-primary/60">
+                <i className="fa-solid fa-chevron-down"></i>
+              </span>
+            </div>
 
-          <fieldset
-            className={`border rounded-md p-4 ${
-              errorForm ? "border-accent" : "border-primary/30"
-            }`}
-          >
-            <legend className="text-sm sm:text-base font-medium text-primary mb-2">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
+                <i className="fa-solid fa-clock"></i>
+              </span>
+              <select
+                name="timeFrame"
+                required
+                defaultValue={currentPlan.timeFrame ?? ""}
+                className="w-full rounded-lg bg-background pl-10 pr-10 py-3 text-primary text-sm sm:text-base border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/40 transition appearance-none"
+              >
+                <option value="">Välj tidsram</option>
+                {filterOptions.timeFrames.map((frame) => (
+                  <option key={frame} value={frame}>
+                    {frame}
+                  </option>
+                ))}
+              </select>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-primary/60">
+                <i className="fa-solid fa-chevron-down"></i>
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-base sm:text-lg font-semibold text-primary">
               Aktivitetstyp
-            </legend>
+            </h3>
             {errorForm && (
-              <p className="mt-1 text-sm text-accent flex items-center gap-1">
+              <p className="text-sm text-accent flex items-center gap-1">
                 {errorForm}
               </p>
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {filterOptions.activityTypes.map((type) => (
-                <label
-                  key={type}
-                  className="flex items-center gap-2 text-primary cursor-pointer"
-                >
+                <label key={type} className="cursor-pointer">
                   <input
                     type="checkbox"
                     name="activityType"
                     value={type}
                     defaultChecked={currentPlan.activityTypes?.includes(type)}
-                    className="rounded border-primary/30 text-primary focus:ring-primary"
+                    className="peer hidden"
                   />
-                  {type}
+                  <div
+                    className="flex items-center justify-center gap-2 rounded-lg bg-background border border-primary/20 px-3 py-2 transition 
+            peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary peer-checked:font-semibold"
+                  >
+                    <span>{type}</span>
+                  </div>
                 </label>
               ))}
             </div>
-          </fieldset>
-
-          <fieldset className="border border-primary/30 rounded-md p-4">
-            <legend className="text-sm sm:text-base font-medium text-primary mb-2">
-              Tidsram
-            </legend>
-            <select
-              name="timeFrame"
-              required
-              defaultValue={currentPlan.timeFrame ?? ""}
-              className="w-full rounded-md bg-background px-3 py-2 sm:px-4 sm:py-3 text-primary text-sm sm:text-base outline outline-1 outline-primary/30 focus:outline-2 focus:outline-primary"
-            >
-              <option value="">Välj tidsram</option>
-              {filterOptions.timeFrames.map((frame) => (
-                <option key={frame} value={frame}>
-                  {frame}
-                </option>
-              ))}
-            </select>
-          </fieldset>
+          </div>
 
           {hasPlan && (
             <input type="hidden" name="plan" value={JSON.stringify(plan)} />
