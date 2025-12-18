@@ -1,3 +1,5 @@
+import img from "../assets/how-to-use-img.png";
+
 export default function HowToUse() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
@@ -47,7 +49,7 @@ export default function HowToUse() {
                     >
                       <path d="M17.593 3.322a1.125 1.125 0 011.657.99v15.376a.75.75 0 01-1.133.65L12 17.25l-6.117 3.088a.75.75 0 01-1.133-.65V4.312a1.125 1.125 0 011.657-.99l6.493 3.246 6.493-3.246z" />
                     </svg>
-                    Spara din plan
+                    Spara din resplan
                   </dt>
                   <dd className="mt-2">
                     Spara dina resplaner i ditt konto och kom tillbaka till dem
@@ -78,14 +80,15 @@ export default function HowToUse() {
             </div>
           </div>
 
-          {/* TODO: Uppdatera med passande bild */}
-          <img
-            width="2432"
-            height="1442"
-            src="https://tailwindcss.com/plus-assets/img/component-images/project-app-screenshot.png"
-            alt="Planago skärmbild"
-            className="w-3xl max-w-none rounded-xl shadow-xl ring-1 ring-primary/10 sm:w-228 md:-ml-4 lg:-ml-0"
-          />
+          <div className="relative overflow-hidden">
+            <img
+              width="2432"
+              height="1442"
+              src={img}
+              alt="Planago skärmbild"
+              className="w-3xl max-w-none sm:w-228 lg:ml-60"
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import img from "../assets/about-img.png";
+
 export default function About() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
@@ -26,14 +28,15 @@ export default function About() {
               </p>
             </div>
           </div>
-          {/* TODO: Uppdatera med passande bild */}
-          <img
-            width="2432"
-            height="1442"
-            src="https://tailwindcss.com/plus-assets/img/component-images/project-app-screenshot.png"
-            alt="About Planago"
-            className="w-3xl max-w-none rounded-xl shadow-xl ring-1 ring-primary/10 sm:w-228 md:-ml-4 lg:-ml-0"
-          />
+          <div className="relative overflow-hidden">
+            <img
+              width="2432"
+              height="1442"
+              src={img}
+              alt="Planago skärmbild"
+              className="w-3xl max-w-none sm:w-228 lg:ml-60"
+            />
+          </div>
         </div>
       </div>
     </div>

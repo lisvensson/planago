@@ -1,3 +1,5 @@
+import img from "../assets/home-img.png";
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12">
@@ -38,14 +40,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* TODO: Uppdatera med bild passande bild */}
-          <div className="flex justify-center lg:justify-end">
+          <div className="relative overflow-hidden">
             <img
               width="2432"
               height="1442"
-              src="https://tailwindcss.com/plus-assets/img/component-images/project-app-screenshot.png"
+              src={img}
               alt="Planago skärmbild"
-              className="w-full max-w-2xl rounded-xl shadow-xl ring-1 ring-primary/10"
+              className="w-3xl max-w-none sm:w-228 lg:ml-60"
             />
           </div>
         </div>
