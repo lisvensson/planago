@@ -64,7 +64,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 
     return { error: "Ogiltig åtgärd" };
   } catch (error) {
-    console.error("Error i account action:", error);
+    console.error("Error in account action:", error);
     return { error: "Det gick inte att utföra åtgärden" };
   }
 }
@@ -88,6 +88,11 @@ export default function AccountSettings({
   return (
     <div className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
+        {actionData?.error && (
+          <div className="mt-6 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
+            {actionData.error}
+          </div>
+        )}
         <div className="grid sm:grid-cols-2 gap-8 items-start">
           <div>
             <h2 className="text-2xl font-bold text-primary">
@@ -224,7 +229,6 @@ export default function AccountSettings({
 
               <div className="fixed inset-0 z-10 flex items-center justify-center p-4">
                 <DialogPanel className="bg-background rounded-lg shadow-xl max-w-lg w-full p-6 border border-primary/20">
-                  {/* Header */}
                   <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left">
                     <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/20 sm:mx-0 sm:size-10">
                       <ExclamationTriangleIcon
