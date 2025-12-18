@@ -46,7 +46,7 @@ export default function Home() {
               height="1442"
               src={img}
               alt="Planago skärmbild"
-              className="w-3xl max-w-none sm:w-228 lg:ml-60"
+              className="w-3xl max-w-none sm:w-228 lg:ml-25"
             />
           </div>
         </div>
