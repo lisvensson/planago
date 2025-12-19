@@ -2,7 +2,7 @@ import { db } from "~/shared/database";
 import type { Route } from "./+types/PlanagoEditPlan";
 import { plan } from "~/shared/database/schema";
 import { eq, and } from "drizzle-orm";
-import { Form, redirect } from "react-router";
+import { Form, Link, redirect } from "react-router";
 import { useEffect, useState } from "react";
 import { userSessionContext } from "~/context/userSessionContext";
 import {
@@ -156,6 +156,7 @@ export default function PlanagoEditPlan({
   } = loaderData;
   const [plan, setPlan] = useState(initialPlan ?? []);
   const [errorForm, setErrorForm] = useState<string | null>(null);
+  const [showPlan, setShowPlan] = useState(false);
 
   useEffect(() => {
     setPlan(initialPlan ?? []);
@@ -164,7 +165,7 @@ export default function PlanagoEditPlan({
   const hasPlan = plan && plan.length > 0;
 
   return (
-    <div className="min-h-screen bg-background px-4 py-12">
+    <main className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
           Uppdatera din utflykt
@@ -186,24 +187,29 @@ export default function PlanagoEditPlan({
               setErrorForm("Du måste välja minst en aktivitetstyp");
             } else {
               setErrorForm(null);
+              setShowPlan(true);
             }
           }}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative">
+              <label htmlFor="location" className="sr-only">
+                Välj plats
+              </label>
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                 <i className="fa-solid fa-map-location-dot"></i>
               </span>
               <select
+                id="location"
                 name="location"
                 required
                 defaultValue={currentPlan.location ?? ""}
                 className="w-full rounded-lg bg-background pl-10 pr-10 py-3 text-primary text-sm sm:text-base border border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/40 transition appearance-none"
               >
                 <option value="">Välj plats</option>
-                {filterOptions.locations.map((loc) => (
-                  <option key={loc} value={loc}>
-                    {loc}
+                {filterOptions.locations.map((location) => (
+                  <option key={location} value={location}>
+                    {location}
                   </option>
                 ))}
               </select>
@@ -213,10 +219,14 @@ export default function PlanagoEditPlan({
             </div>
 
             <div className="relative">
+              <label htmlFor="timeFrame" className="sr-only">
+                Välj tidsram
+              </label>
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                 <i className="fa-solid fa-clock"></i>
               </span>
               <select
+                id="timeFrame"
                 name="timeFrame"
                 required
                 defaultValue={currentPlan.timeFrame ?? ""}
@@ -236,9 +246,9 @@ export default function PlanagoEditPlan({
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-base sm:text-lg font-semibold text-primary">
+            <h2 className="text-base sm:text-lg font-semibold text-primary">
               Aktivitetstyp
-            </h3>
+            </h2>
             {errorForm && (
               <p className="text-sm text-accent flex items-center gap-1">
                 {errorForm}
@@ -254,10 +264,7 @@ export default function PlanagoEditPlan({
                     defaultChecked={currentPlan.activityTypes?.includes(type)}
                     className="peer hidden"
                   />
-                  <div
-                    className="flex items-center justify-center gap-2 rounded-lg bg-background border border-primary/20 px-3 py-2 transition 
-            peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary peer-checked:font-semibold"
-                  >
+                  <div className="flex items-center justify-center gap-2 rounded-lg bg-background border border-primary/20 px-3 py-2 transition peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary peer-checked:font-semibold text-xs sm:text-sm md:text-base">
                     <span>{type}</span>
                   </div>
                 </label>
@@ -269,15 +276,26 @@ export default function PlanagoEditPlan({
             <input type="hidden" name="plan" value={JSON.stringify(plan)} />
           )}
 
-          <button
-            type="submit"
-            name="intent"
-            value="regenerate"
-            formMethod="get"
-            className="w-full rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
-          >
-            Skapa uppdaterad resplan
-          </button>
+          {!showPlan && (
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+              <button
+                type="submit"
+                name="intent"
+                value="regenerate"
+                formMethod="get"
+                className="flex-1 rounded-md bg-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow hover:bg-primary/90 transition"
+              >
+                Skapa ny resplan
+              </button>
+
+              <Link
+                to="/account/saved-plans"
+                className="flex-1 rounded-md bg-accent px-6 py-3 text-base font-semibold text-accent-foreground shadow hover:bg-accent/90 transition text-center"
+              >
+                Avbryt
+              </Link>
+            </div>
+          )}
 
           {error && (
             <div className="mt-4 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
@@ -285,7 +303,7 @@ export default function PlanagoEditPlan({
             </div>
           )}
 
-          {hasPlan && (
+          {hasPlan && showPlan && (
             <div className="mt-10 text-center">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-6">
                 Din nya resplan
@@ -363,7 +381,17 @@ export default function PlanagoEditPlan({
                   formMethod="post"
                   className="flex-1 rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
                 >
-                  Uppdatera resplan
+                  Uppdatera befintlig resplan
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPlan([]);
+                    setShowPlan(false);
+                  }}
+                  className="flex-1 rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
+                >
+                  Skapa ny resplan
                 </button>
                 <button
                   type="submit"
@@ -385,6 +413,6 @@ export default function PlanagoEditPlan({
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

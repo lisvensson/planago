@@ -129,7 +129,7 @@ export default function PlanagoFilter({
   const hasPlan = plan && plan.length > 0;
 
   return (
-    <div className="min-h-screen bg-background px-4 py-12">
+    <main className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
           Planera din utflykt
@@ -157,10 +157,14 @@ export default function PlanagoFilter({
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="relative">
+              <label htmlFor="location" className="sr-only">
+                Välj plats
+              </label>
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                 <i className="fa-solid fa-map-location-dot"></i>
               </span>
               <select
+                id="location"
                 name="location"
                 required
                 defaultValue={searchParams.get("location") ?? ""}
@@ -179,10 +183,14 @@ export default function PlanagoFilter({
             </div>
 
             <div className="relative">
+              <label htmlFor="timeFrame" className="sr-only">
+                Välj tidsram
+              </label>
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary">
                 <i className="fa-solid fa-clock"></i>
               </span>
               <select
+                id="timeFrame"
                 name="timeFrame"
                 required
                 defaultValue={searchParams.get("timeFrame") ?? ""}
@@ -202,9 +210,9 @@ export default function PlanagoFilter({
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-base sm:text-lg font-semibold text-primary">
+            <h2 className="text-base sm:text-lg font-semibold text-primary">
               Aktivitetstyp
-            </h3>
+            </h2>
             {errorForm && (
               <p className="text-sm text-accent flex items-center gap-1">
                 {errorForm}
@@ -223,16 +231,14 @@ export default function PlanagoFilter({
                     )}
                     className="peer hidden"
                   />
-                  <div
-                    className="flex items-center justify-center gap-2 rounded-lg bg-background border border-primary/20 px-3 py-2 transition 
-                      peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary peer-checked:font-semibold"
-                  >
+                  <div className="flex items-center justify-center gap-2 rounded-lg bg-background border border-primary/20 px-3 py-2 transition peer-checked:bg-primary/10 peer-checked:border-primary peer-checked:text-primary peer-checked:font-semibold text-xs sm:text-sm md:text-base">
                     <span>{type}</span>
                   </div>
                 </label>
               ))}
             </div>
           </div>
+
           {!hasPlan && (
             <div className="flex flex-col md:flex-row gap-3 md:gap-4">
               <button
@@ -245,6 +251,7 @@ export default function PlanagoFilter({
               <button
                 type="reset"
                 onClick={() => {
+                  setPlan([]);
                   setErrorForm(null);
                 }}
                 className="w-full md:w-auto flex-1 rounded-xl bg-accent px-6 py-3 text-base font-semibold text-accent-foreground shadow-md hover:bg-accent/90 hover:shadow-lg transition"
@@ -377,6 +384,6 @@ export default function PlanagoFilter({
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
