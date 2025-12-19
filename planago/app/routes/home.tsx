@@ -2,7 +2,7 @@ import img from "../assets/home-img.png";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-12">
+    <main className="min-h-screen flex flex-col justify-center items-center px-4 py-12">
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden blur-2xl transform-gpu">
         <div
           style={{
@@ -64,6 +64,6 @@ export default function Home() {
           className="absolute left-1/2 bottom-0 h-[36rem] w-[72rem] -translate-x-1/2 bg-gradient-to-tr from-primary to-accent opacity-20"
         />
       </div>
-    </div>
+    </main>
   );
 }

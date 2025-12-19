@@ -86,7 +86,7 @@ export default function AccountSettings({
   }, [actionData]);
 
   return (
-    <div className="min-h-screen bg-background px-4 py-12">
+    <main className="min-h-screen bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
         {actionData?.error && (
           <div className="mt-6 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
@@ -116,21 +116,30 @@ export default function AccountSettings({
             <Form method="post" className="w-full space-y-4">
               <input type="hidden" name="intent" value="updateName" />
               <div>
-                <label className="block text-sm font-medium text-primary">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-primary"
+                >
                   Namn
                 </label>
                 <input
+                  id="name"
                   type="text"
                   name="name"
                   defaultValue={user.name}
                   className="mt-1 w-full rounded-md border border-primary/30 px-3 py-2"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-primary">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-primary"
+                >
                   E‑postadress
                 </label>
                 <input
+                  id="email"
                   type="email"
                   value={user.email}
                   className="mt-1 w-full rounded-md border border-primary/30 px-3 py-2"
@@ -278,6 +287,6 @@ export default function AccountSettings({
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -2,7 +2,7 @@ import { authClient } from "~/shared/auth/client";
 
 export default function SignIn() {
   return (
-    <div className="flex min-h-screen flex-col justify-center items-center px-6 py-12">
+    <main className="flex min-h-screen flex-col justify-center items-center px-6 py-12">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h1 className="text-center text-2xl sm:text-3xl font-bold tracking-tight text-primary">
           Logga in
@@ -58,6 +58,6 @@ export default function SignIn() {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
