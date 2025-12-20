@@ -3,7 +3,15 @@ import { db } from "~/shared/database";
 import { plan } from "~/shared/database/schema";
 import { eq, and } from "drizzle-orm";
 import type { Route } from "./+types/AccountSavedPlans";
-import { Form, Link, redirect } from "react-router";
+import { Form, Link, redirect, useNavigation } from "react-router";
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 export async function loader({ context }: Route.LoaderArgs) {
   try {
@@ -52,6 +60,18 @@ export default function AccountSavedPlans({
   actionData,
 }: Route.ComponentProps) {
   const { plans } = loaderData;
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [selectedPlanTitle, setSelectedPlanTitle] = useState<string | null>(
+    null
+  );
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (navigation.state === "submitting") {
+      setOpenDeleteDialog(false);
+    }
+  }, [navigation.state]);
 
   return (
     <main className="min-h-screen bg-background px-4 py-12">
@@ -74,7 +94,7 @@ export default function AccountSavedPlans({
         </div>
 
         {plans.length === 0 ? (
-          <div className="mt-10  text-primary/70 text-sm sm:text-base">
+          <div className="mt-10 text-primary/70 text-sm sm:text-base">
             Du har inga sparade resplaner ännu.
           </div>
         ) : (
@@ -120,20 +140,18 @@ export default function AccountSavedPlans({
                           >
                             Redigera
                           </Link>
-                          <Form method="post">
-                            <input
-                              type="hidden"
-                              name="planId"
-                              value={plan.id}
-                            />
 
-                            <button
-                              type="submit"
-                              className="font-semibold text-accent hover:underline"
-                            >
-                              Radera
-                            </button>
-                          </Form>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedPlanId(plan.id);
+                              setSelectedPlanTitle(plan.title);
+                              setOpenDeleteDialog(true);
+                            }}
+                            className="font-semibold text-accent hover:underline"
+                          >
+                            Radera
+                          </button>
                         </div>
                       </div>
                     </td>
@@ -156,12 +174,17 @@ export default function AccountSavedPlans({
                     </td>
 
                     <td className="px-3 py-2 text-sm font-semibold text-accent hidden sm:table-cell">
-                      <Form method="post">
-                        <input type="hidden" name="planId" value={plan.id} />
-                        <button type="submit" className="hover:underline">
-                          Radera
-                        </button>
-                      </Form>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPlanId(plan.id);
+                          setSelectedPlanTitle(plan.title);
+                          setOpenDeleteDialog(true);
+                        }}
+                        className="font-semibold text-accent hover:underline"
+                      >
+                        Radera
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -176,6 +199,70 @@ export default function AccountSavedPlans({
           </div>
         )}
       </div>
+
+      <Dialog
+        open={openDeleteDialog}
+        onClose={setOpenDeleteDialog}
+        className="relative z-10"
+      >
+        <DialogBackdrop className="fixed inset-0 bg-background/80" />
+
+        <DialogPanel className="fixed inset-0 z-10 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg shadow-xl max-w-lg w-full p-6 border border-primary/20">
+            <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/20 sm:mx-0 sm:size-10">
+                <ExclamationTriangleIcon
+                  aria-hidden="true"
+                  className="size-6 text-accent"
+                />
+              </div>
+
+              <div className="mt-3 sm:mt-0 sm:ml-4">
+                <DialogTitle
+                  as="h3"
+                  className="text-base font-semibold text-primary"
+                >
+                  Radera resplan
+                </DialogTitle>
+
+                <p className="mt-2 text-sm text-primary/70">
+                  Är du säker på att du vill radera resplanen
+                  <span className="font-semibold text-primary">
+                    {" "}
+                    "{selectedPlanTitle}"
+                  </span>
+                  ? Denna åtgärd går inte att ångra.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <Form method="post" className="w-full sm:w-auto">
+                <input
+                  type="hidden"
+                  name="planId"
+                  value={selectedPlanId ?? ""}
+                />
+
+                <button
+                  type="submit"
+                  className="inline-flex w-full justify-center rounded-md bg-accent px-3 py-2 text-sm font-semibold text-accent-foreground shadow hover:bg-accent/90 sm:w-auto"
+                >
+                  Radera
+                </button>
+              </Form>
+
+              <button
+                type="button"
+                onClick={() => setOpenDeleteDialog(false)}
+                className="inline-flex w-full justify-center rounded-md bg-primary/10 px-3 py-2 text-sm font-semibold text-primary shadow hover:bg-primary/20 sm:w-auto"
+              >
+                Avbryt
+              </button>
+            </div>
+          </div>
+        </DialogPanel>
+      </Dialog>
     </main>
   );
 }
