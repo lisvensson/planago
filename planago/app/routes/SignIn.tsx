@@ -16,7 +16,7 @@ export default function SignIn() {
 
         <div className="flex items-center">
           <div className="flex-grow h-px bg-primary/20" />
-          <span className="mx-4 text-sm text-primary/60">
+          <span className="mx-4 text-sm text-primary/70">
             Välj inloggningsmetod
           </span>
           <div className="flex-grow h-px bg-primary/20" />
