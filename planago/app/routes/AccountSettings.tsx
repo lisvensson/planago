@@ -86,7 +86,7 @@ export default function AccountSettings({
   }, [actionData]);
 
   return (
-    <main className="min-h-screen bg-background px-4 py-12">
+    <main className="flex-grow bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
         {actionData?.error && (
           <div className="mt-6 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">

@@ -2,26 +2,27 @@ import { authClient } from "~/shared/auth/client";
 
 export default function SignIn() {
   return (
-    <main className="flex min-h-screen flex-col justify-center items-center px-6 py-12">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="text-center text-2xl sm:text-3xl font-bold tracking-tight text-primary">
-          Logga in
-        </h1>
-        <p className="mt-4 text-center text-sm text-primary/75">
-          Logga in för att planera din nästa utflykt med Planago.
-        </p>
-      </div>
-
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-sm">
-        <div className="mt-6 flex items-center">
-          <div className="flex-grow min-w-[40px] border-t border-primary/30" />
-          <span className="mx-2 text-sm text-primary/75 bg-background px-2 whitespace-nowrap">
-            Logga in med
-          </span>
-          <div className="flex-grow min-w-[40px] border-t border-primary/30" />
+    <main className="flex flex-col flex-grow justify-start items-center px-6 py-12 pt-24 bg-background">
+      <div className="w-full max-w-md bg-background border border-primary/10 rounded-2xl shadow-sm p-10 space-y-10">
+        <div className="space-y-3">
+          <h1 className="text-center text-3xl font-bold text-primary">
+            Logga in
+          </h1>
+          <p className="text-center text-primary/70 text-sm leading-relaxed">
+            För att få tillgång till dina sparade resplaner och skapa nya
+            resplaner med Planago behöver du vara inloggad.
+          </p>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <div className="flex items-center">
+          <div className="flex-grow h-px bg-primary/20" />
+          <span className="mx-4 text-sm text-primary/60">
+            Välj inloggningsmetod
+          </span>
+          <div className="flex-grow h-px bg-primary/20" />
+        </div>
+
+        <div className="flex flex-col gap-4">
           <button
             type="button"
             onClick={() =>
@@ -30,15 +31,16 @@ export default function SignIn() {
                 callbackURL: "/planago/skapa-resplan",
               })
             }
-            className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-md border border-primary/30 bg-background px-3 py-2 text-sm font-semibold text-primary shadow hover:bg-primary/10"
+            className="flex w-full justify-center items-center gap-3 rounded-xl border border-primary/20 bg-background px-5 py-4 text-sm font-semibold text-primary shadow-sm hover:bg-primary/10 transition"
           >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
               alt="Google"
               className="h-5 w-5"
             />
-            Google
+            Fortsätt med Google
           </button>
+
           <button
             type="button"
             onClick={() =>
@@ -47,14 +49,14 @@ export default function SignIn() {
                 callbackURL: "/planago/skapa-resplan",
               })
             }
-            className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-md border border-primary/30 bg-background px-3 py-2 text-sm font-semibold text-primary shadow hover:bg-primary/10"
+            className="flex w-full justify-center items-center gap-3 rounded-xl border border-primary/20 bg-background px-5 py-4 text-sm font-semibold text-primary shadow-sm hover:bg-primary/10 transition"
           >
             <img
               src="https://www.svgrepo.com/show/452062/microsoft.svg"
               alt="Microsoft"
               className="h-5 w-5"
             />
-            Microsoft
+            Fortsätt med Microsoft
           </button>
         </div>
       </div>

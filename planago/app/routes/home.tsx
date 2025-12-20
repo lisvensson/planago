@@ -2,7 +2,7 @@ import img from "../assets/home-img.png";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col justify-center items-center px-4 py-12">
+    <main className="flex-grow bg-background justify-center items-center px-4 py-12">
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden blur-2xl transform-gpu">
         <div
           style={{

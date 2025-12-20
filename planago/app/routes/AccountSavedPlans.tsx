@@ -74,7 +74,7 @@ export default function AccountSavedPlans({
   }, [navigation.state]);
 
   return (
-    <main className="min-h-screen bg-background px-4 py-12">
+    <main className="flex-grow bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
