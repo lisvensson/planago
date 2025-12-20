@@ -4,6 +4,23 @@ export function mapActivityTypes(activityTypes: string[]): string[] {
   return activityTypes.flatMap((type) => activityTypeMapping[type] || [type]);
 }
 
+export async function geocodeCity(city: string, apiKey: string) {
+  const query = `${city}, Sweden`;
+
+  const res = await fetch(
+    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+      query
+    )}&key=${apiKey}`
+  );
+
+  const data = await res.json();
+
+  if (!data.results?.length) return null;
+
+  const { lat, lng } = data.results[0].geometry.location;
+  return { lat, lng };
+}
+
 export function mapPlaceToCategory(place: any): "food" | "activity" {
   const type = place.types || [];
   return type.some((x: string) => ["restaurant", "cafe", "bar"].includes(x))

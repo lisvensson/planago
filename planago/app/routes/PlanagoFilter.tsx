@@ -1,4 +1,4 @@
-import { Form, redirect, useSearchParams } from "react-router";
+import { Form, redirect, useNavigation, useSearchParams } from "react-router";
 import type { Route } from "./+types/PlanagoFilter";
 import { useEffect, useState } from "react";
 import { userSessionContext } from "~/context/userSessionContext";
@@ -7,6 +7,7 @@ import { plan } from "~/shared/database/schema";
 import { filterOptions } from "~/models/planConfig";
 import {
   generatePlan,
+  geocodeCity,
   getSelectedTimeFrame,
   mapActivityTypes,
 } from "~/models/planUtils";
@@ -24,11 +25,27 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   if (location && activityTypes.length > 0) {
     const mappedTypes = mapActivityTypes(activityTypes);
-
-    const query = `${mappedTypes.join(" ")} in ${location}`;
     const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
-    try {
+    const geo = await geocodeCity(location, apiKey);
+    if (!geo) {
+      error = "Kunde inte hitta vald plats.";
+      return { filterOptions, generatedPlan: [], error };
+    }
+
+    const locationBias = {
+      circle: {
+        center: { latitude: geo.lat, longitude: geo.lng },
+        radius: 15000,
+      },
+    };
+
+    const query = `${mappedTypes.join(" ")} in ${location}`;
+
+    async function fetchPage(pageToken?: string) {
+      const body: any = { textQuery: query, locationBias };
+      if (pageToken) body.pageToken = pageToken;
+
       const response = await fetch(
         `https://places.googleapis.com/v1/places:searchText?key=${apiKey}`,
         {
@@ -36,9 +53,9 @@ export async function loader({ request }: Route.LoaderArgs) {
           headers: {
             "Content-Type": "application/json",
             "X-Goog-FieldMask":
-              "places.displayName,places.formattedAddress,places.googleMapsUri,places.types,places.id",
+              "places.displayName,places.formattedAddress,places.googleMapsUri,places.types,places.id,nextPageToken",
           },
-          body: JSON.stringify({ textQuery: query }),
+          body: JSON.stringify(body),
         }
       );
 
@@ -49,23 +66,46 @@ export async function loader({ request }: Route.LoaderArgs) {
         data = {};
       }
 
-      if (!response.ok) {
-        if (response.status === 400) {
+      return { ok: response.ok, status: response.status, data };
+    }
+
+    try {
+      const page1 = await fetchPage();
+
+      if (!page1.ok) {
+        if (page1.status === 400) {
           error =
             "Din sökning kunde inte behandlas. Kontrollera dina val och försök igen.";
-        } else if (response.status === 429) {
+        } else if (page1.status === 429) {
           error =
             "För många förfrågningar just nu. Vänta en stund och försök igen.";
         } else {
-          error = `Ett oväntat fel inträffade (status: ${response.status}). Försök igen.`;
+          error = `Ett oväntat fel inträffade (status: ${page1.status}). Försök igen.`;
         }
-      } else if (data.error) {
-        error = data.error.message || "Okänt API-fel";
-      } else if (!data.places || data.places.length === 0) {
+        return { filterOptions, generatedPlan: [], error };
+      }
+
+      let allPlaces = [...(page1.data.places ?? [])];
+      let nextToken = page1.data.nextPageToken;
+
+      if (nextToken) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const page2 = await fetchPage(nextToken);
+
+        if (page2.ok) {
+          allPlaces.push(...(page2.data.places ?? []));
+        }
+      }
+
+      const uniquePlaces = [
+        ...new Map(allPlaces.map((p) => [p.id, p])).values(),
+      ];
+
+      if (uniquePlaces.length === 0) {
         error = "Inga platser matchade dina filter. Prova att ändra sökningen.";
       } else {
         generatedPlan = generatePlan(
-          data.places,
+          uniquePlaces,
           getSelectedTimeFrame(timeFrame ?? "Heldag")
         );
       }
@@ -118,6 +158,8 @@ export default function PlanagoFilter({
   actionData,
 }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
   const { filterOptions, generatedPlan: initialPlan, error } = loaderData;
   const [errorForm, setErrorForm] = useState<string | null>(null);
   const [plan, setPlan] = useState(initialPlan ?? []);
@@ -129,7 +171,7 @@ export default function PlanagoFilter({
   const hasPlan = plan && plan.length > 0;
 
   return (
-    <main className="min-h-screen bg-background px-4 py-12">
+    <main className="flex-grow bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
           Planera din utflykt
@@ -262,13 +304,19 @@ export default function PlanagoFilter({
           )}
         </Form>
 
+        {isLoading && (
+          <div className="flex justify-center py-6">
+            <div className="h-6 w-6 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+          </div>
+        )}
+
         {error && (
           <div className="mt-4 p-3 rounded bg-accent/10 text-accent text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        {hasPlan && (
+        {hasPlan && !isLoading && (
           <div className="mt-10 text-center">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-6">
               Din resplan
@@ -367,12 +415,17 @@ export default function PlanagoFilter({
               >
                 Spara resplan
               </button>
+
+              <span className="mt-2 text-primary/60 text-sm font-medium">
+                eller
+              </span>
+
               <button
                 type="button"
                 onClick={() => setPlan([])}
                 className="flex-1 rounded-md bg-accent px-4 py-2 text-primary-foreground shadow hover:bg-accent/90"
               >
-                Skapa ny resplan
+                Generera ny resplan
               </button>
             </Form>
           </div>
