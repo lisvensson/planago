@@ -26,13 +26,13 @@ export default function Home() {
             </p>
             <div className="mt-10 flex items-center justify-start gap-x-6">
               <a
-                href="/planago/filter"
+                href="/planago/skapa-resplan"
                 className="rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 Börja planera din nästa utflykt
               </a>
               <a
-                href="/how-to-use"
+                href="/hur-fungerar-planago"
                 className="text-sm font-semibold text-accent hover:text-accent/80"
               >
                 Hur fungerar Planago? →

@@ -132,11 +132,11 @@ export async function action({ request, params, context }: Route.ActionArgs) {
         })
         .where(and(eq(plan.id, params.planId), eq(plan.userId, userId)));
 
-      return redirect(`/planago/plan/${params.planId}`);
+      return redirect(`/planago/resplan/${params.planId}`);
     }
 
     if (intent === "cancel") {
-      return redirect(`/planago/plan/${params.planId}`);
+      return redirect(`/planago/resplan/${params.planId}`);
     }
   } catch (error: any) {
     console.error("Error updating plan:", error);
@@ -289,7 +289,7 @@ export default function PlanagoEditPlan({
               </button>
 
               <Link
-                to="/account/saved-plans"
+                to="/konto/sparade-resplaner"
                 className="flex-1 rounded-md bg-accent px-6 py-3 text-base font-semibold text-accent-foreground shadow hover:bg-accent/90 transition text-center"
               >
                 Avbryt

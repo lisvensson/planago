@@ -59,7 +59,7 @@ export async function action({ request, context }: Route.ActionArgs) {
 
     if (intent === "deleteAccount") {
       await db.delete(user).where(eq(user.id, userId));
-      return redirect("/signin");
+      return redirect("/logga-in");
     }
 
     return { error: "Ogiltig åtgärd" };

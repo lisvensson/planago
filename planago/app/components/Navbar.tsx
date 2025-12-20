@@ -13,9 +13,9 @@ import { Form, NavLink, useNavigate } from "react-router";
 import { authClient } from "~/shared/auth/client";
 
 const navigation = [
-  { name: "Börja planera", href: "/planago/filter", current: false },
-  { name: "Hur fungerar det?", href: "/how-to-use", current: false },
-  { name: "Om oss", href: "/about", current: false },
+  { name: "Börja planera", href: "/planago/skapa-resplan", current: false },
+  { name: "Hur fungerar det?", href: "/hur-fungerar-planago", current: false },
+  { name: "Om oss", href: "/om-oss", current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -33,7 +33,7 @@ export default function Navbar({ isLoggedIn, userImage }: Props) {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          navigate("/signin");
+          navigate("/logga-in");
         },
       },
     });
@@ -115,7 +115,7 @@ export default function Navbar({ isLoggedIn, userImage }: Props) {
               >
                 <MenuItem>
                   <a
-                    href="/account/saved-plans"
+                    href="/konto/sparade-resplaner"
                     className="block px-4 py-2 text-sm text-primary hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
                   >
                     Sparade planer
@@ -123,7 +123,7 @@ export default function Navbar({ isLoggedIn, userImage }: Props) {
                 </MenuItem>
                 <MenuItem>
                   <a
-                    href="/account/settings"
+                    href="/konto/installningar"
                     className="block px-4 py-2 text-sm text-primary hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
                   >
                     Inställningar
@@ -147,7 +147,7 @@ export default function Navbar({ isLoggedIn, userImage }: Props) {
                     </Form>
                   ) : (
                     <a
-                      href="/signin"
+                      href="/logga-in"
                       className="block px-4 py-2 text-left text-sm font-medium text-accent hover:bg-accent/10 hover:text-accent data-focus:outline-hidden"
                     >
                       Logga in

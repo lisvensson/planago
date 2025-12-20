@@ -27,7 +27,7 @@ export default function SignIn() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/planago/filter",
+                callbackURL: "/planago/skapa-resplan",
               })
             }
             className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-md border border-primary/30 bg-background px-3 py-2 text-sm font-semibold text-primary shadow hover:bg-primary/10"
@@ -44,7 +44,7 @@ export default function SignIn() {
             onClick={() =>
               authClient.signIn.social({
                 provider: "microsoft",
-                callbackURL: "/planago/filter",
+                callbackURL: "/planago/skapa-resplan",
               })
             }
             className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-md border border-primary/30 bg-background px-3 py-2 text-sm font-semibold text-primary shadow hover:bg-primary/10"

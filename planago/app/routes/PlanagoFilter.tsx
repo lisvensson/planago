@@ -106,7 +106,7 @@ export async function action({ request, context }: Route.ActionArgs) {
       createdAt: new Date(),
     });
 
-    return redirect(`/planago/plan/${newId}`);
+    return redirect(`/planago/resplan/${newId}`);
   } catch (error: any) {
     console.error("Error saving plan:", error);
     return { error: "Det gick inte att spara din resplan." };

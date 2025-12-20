@@ -48,7 +48,7 @@ export async function action({ request, context }: Route.ActionArgs) {
       .delete(plan)
       .where(and(eq(plan.id, planId), eq(plan.userId, userId)));
 
-    return redirect("/account/saved-plans");
+    return redirect("/konto/sparade-resplaner");
   } catch (error) {
     console.error("Error deleting plan:", error);
     return { error: "Det gick inte att radera resplan" };
@@ -86,7 +86,7 @@ export default function AccountSavedPlans({
             </p>
           </div>
           <Link
-            to="/planago/filter"
+            to="/planago/skapa-resplan"
             className="mt-4 sm:mt-0 rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
           >
             Skapa ny resplan
@@ -123,7 +123,7 @@ export default function AccountSavedPlans({
                   >
                     <td className="px-3 py-2 text-sm font-medium">
                       <Link
-                        to={`/planago/plan/${plan.id}`}
+                        to={`/planago/resplan/${plan.id}`}
                         className="text-accent hover:underline"
                       >
                         {plan.title}
@@ -135,7 +135,7 @@ export default function AccountSavedPlans({
                         <p>Plats: {plan.location}</p>
                         <div className="flex gap-4 mt-2">
                           <Link
-                            to={`/planago/edit-plan/${plan.id}`}
+                            to={`/planago/redigera-resplan/${plan.id}`}
                             className="font-semibold text-primary hover:underline"
                           >
                             Redigera
@@ -166,7 +166,7 @@ export default function AccountSavedPlans({
 
                     <td className="px-3 py-2 text-sm font-semibold text-primary hidden sm:table-cell">
                       <Link
-                        to={`/planago/edit-plan/${plan.id}`}
+                        to={`/planago/redigera-resplan/${plan.id}`}
                         className="hover:underline"
                       >
                         Redigera

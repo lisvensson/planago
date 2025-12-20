@@ -52,7 +52,7 @@ export async function action({ request, params, context }: Route.ActionArgs) {
         .where(and(eq(plan.id, params.planId), eq(plan.userId, userId)));
     }
 
-    return redirect("/account/saved-plans");
+    return redirect("/konto/sparade-resplaner");
   } catch (error: any) {
     console.error("Error deleting plan:", error);
     return { error: "Det gick inte att radera din resplan." };
@@ -79,7 +79,7 @@ export default function PlanagoPlan({
             </p>
           </div>
           <Link
-            to="/account/saved-plans"
+            to="/konto/sparade-resplaner"
             className="mt-4 sm:mt-0 rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
           >
             Se sparade resplaner
@@ -154,7 +154,7 @@ export default function PlanagoPlan({
           <button
             type="button"
             className="flex-1 rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:bg-primary/90"
-            onClick={() => navigate(`/planago/edit-plan/${plan.id}`)}
+            onClick={() => navigate(`/planago/redigera-resplan/${plan.id}`)}
           >
             Redigera resplan
           </button>
