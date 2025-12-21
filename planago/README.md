@@ -52,8 +52,6 @@ npm run dev
 The app will be available at:
 http://localhost:5173
 
----
-
 ## 🌐 API Endpoints
 
 Below is a complete overview of the key Remix routes used in Planago, structured as a clear reference guide.
