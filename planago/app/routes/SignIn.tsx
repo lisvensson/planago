@@ -1,9 +1,18 @@
 import { authClient } from "~/shared/auth/client";
+import logo from "../assets/planago-logo-brown.svg";
 
 export default function SignIn() {
   return (
     <main className="flex flex-col flex-grow justify-start items-center px-6 py-12 pt-24 bg-background">
       <div className="w-full max-w-md bg-background border border-primary/10 rounded-2xl shadow-sm p-10 space-y-10">
+        <div className="flex justify-center">
+          <img
+            src={logo}
+            alt="Planago-logo"
+            className="h-14 sm:h-16 md:h-20 w-auto opacity-90"
+          />
+        </div>
+
         <div className="space-y-3">
           <h1 className="text-center text-3xl font-bold text-primary">
             Logga in
