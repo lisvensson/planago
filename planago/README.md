@@ -18,8 +18,6 @@ Generate personalized day plans based on location, time frame, and activity pref
 - [🧭 Application Flow](#-application-flow)
 - [🛠️ Tech Stack](#-tech-stack)
 
----
-
 ## 🚀 Getting Started
 
 Follow these steps to run the project locally.
@@ -59,8 +57,6 @@ http://localhost:5173
 ## 🌐 API Endpoints
 
 Below is a complete overview of the key Remix routes used in Planago, structured as a clear reference guide.
-
----
 
 ## ✅ Authentication (UI Route)
 
@@ -418,8 +414,6 @@ Redirects to `/logga-in`
 - All saved plans belonging to the user are also removed
 - This action cannot be undone
 
----
-
 ## 🧭 Application Flow
 
 A simplified overview of how users interact with Planago from login to plan management.
@@ -463,8 +457,6 @@ A simplified overview of how users interact with Planago from login to plan mana
 
 - Session is cleared
 - User is redirected to `/logga-in`
-
----
 
 ## 🛠️ Tech Stack
 
