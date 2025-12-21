@@ -10,8 +10,8 @@ Generate personalized day plans based on location, time frame, and activity pref
 - [🚀 Getting Started](#-getting-started)
 - [🌐 API Endpoints](#-api-endpoints)
   - [✅ Authentication (UI Route)](#-authentication-ui-route)
-  - [✅ Create & Generate Plans](#-create--generate-plans)
-  - [✅ Saved Plans](#-saved-plans)
+  - [✅ Create & Generate Plan](#-create--generate-plan)
+  - [✅ Saved Plan](#-saved-plan)
   - [✅ Saved Plans Overview Page](#-saved-plans-overview-page)
   - [✅ Edit Plan](#-edit-plan)
   - [✅ Account Settings](#-account-settings)
@@ -86,7 +86,7 @@ Rendered HTML page with:
 
 ---
 
-## ✅ Create & Generate Plans
+## ✅ Create & Generate Plan
 
 ### [GET] `/planago/skapa-resplan`
 
@@ -171,7 +171,7 @@ Saves a generated plan to the database.
 
 ---
 
-## ✅ Saved Plans
+## ✅ Saved Plan
 
 ### [GET] `/planago/resplan/:planId`
 
