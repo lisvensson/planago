@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 
 export async function loader({ context }: Route.LoaderArgs) {
   try {
@@ -73,6 +74,27 @@ export default function AccountSavedPlans({
     }
   }, [navigation.state]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    const updatePageSize = () => {
+      setPageSize(window.innerWidth < 640 ? 5 : 10);
+    };
+
+    updatePageSize();
+    window.addEventListener("resize", updatePageSize);
+    return () => window.removeEventListener("resize", updatePageSize);
+  }, []);
+
+  const totalPlans = plans.length;
+  const totalPages = Math.ceil(totalPlans / pageSize);
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
+  const visiblePlans = plans.slice(startIndex, endIndex);
+
   return (
     <main className="flex-grow bg-background px-4 py-12">
       <div className="mx-auto max-w-5xl space-y-12">
@@ -116,7 +138,7 @@ export default function AccountSavedPlans({
                 </tr>
               </thead>
               <tbody>
-                {plans.map((plan: any) => (
+                {visiblePlans.map((plan) => (
                   <tr
                     key={plan.id}
                     className="border-b border-primary/20 hover:bg-primary/5 transition"
@@ -190,6 +212,92 @@ export default function AccountSavedPlans({
                 ))}
               </tbody>
             </table>
+            <div className="flex items-center justify-between bg-background px-4 py-3 sm:px-6 mt-6">
+              {/* Mobile */}
+              <div className="flex flex-1 justify-between sm:hidden">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                  className="relative inline-flex items-center rounded-md border border-primary/30 bg-background px-4 py-2 text-sm font-medium text-primary disabled:opacity-40 hover:bg-primary/10 transition"
+                >
+                  Föregående
+                </button>
+
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                  className="relative ml-3 inline-flex items-center rounded-md border border-primary/30 bg-background px-4 py-2 text-sm font-medium text-primary disabled:opacity-40 hover:bg-primary/10 transition"
+                >
+                  Nästa
+                </button>
+              </div>
+
+              {/* Desktop */}
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-primary/80">
+                    Visar{" "}
+                    <span className="font-semibold text-primary">
+                      {startIndex + 1}
+                    </span>{" "}
+                    till{" "}
+                    <span className="font-semibold text-primary">
+                      {Math.min(endIndex, totalPlans)}
+                    </span>{" "}
+                    av{" "}
+                    <span className="font-semibold text-primary">
+                      {totalPlans}
+                    </span>{" "}
+                    resplaner
+                  </p>
+                </div>
+
+                <div>
+                  <nav
+                    aria-label="Pagination"
+                    className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                  >
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((p) => p - 1)}
+                      className="relative inline-flex items-center rounded-l-md px-2 py-2 text-primary/60 border border-primary/30 bg-background hover:bg-primary/10 disabled:opacity-40 transition"
+                    >
+                      <span className="sr-only">Föregående</span>
+                      <ChevronLeftIcon aria-hidden="true" className="size-5" />
+                    </button>
+
+                    {Array.from({ length: totalPages }).map((_, i) => {
+                      const page = i + 1;
+                      const isCurrent = page === currentPage;
+
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          aria-current={isCurrent ? "page" : undefined}
+                          className={
+                            isCurrent
+                              ? "relative z-10 inline-flex items-center bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground border border-primary"
+                              : "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-primary border border-primary/30 bg-background hover:bg-primary/10 transition"
+                          }
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                      className="relative inline-flex items-center rounded-r-md px-2 py-2 text-primary/60 border border-primary/30 bg-background hover:bg-primary/10 disabled:opacity-40 transition"
+                    >
+                      <span className="sr-only">Nästa</span>
+                      <ChevronRightIcon aria-hidden="true" className="size-5" />
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
