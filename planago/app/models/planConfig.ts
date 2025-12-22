@@ -192,6 +192,15 @@ export const activityTypeMapping: Record<string, string[]> = {
   ],
 };
 
+export const hotelTypes = [
+  "lodging",
+  "hotel",
+  "motel",
+  "hostel",
+  "guest_house",
+  "campground",
+];
+
 export type TimeFrame =
   | "Heldag"
   | "Halvdag (förmiddag)"
@@ -203,9 +212,8 @@ export const timeFrames: Record<
 > = {
   Heldag: [
     { time: "10:00", type: "activity" },
-    { time: "12:30", type: "food" },
-    { time: "14:00", type: "activity" },
-    { time: "18:00", type: "food" },
+    { time: "13:00", type: "food" },
+    { time: "15:00", type: "activity" },
   ],
   "Halvdag (förmiddag)": [
     { time: "10:00", type: "activity" },

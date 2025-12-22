@@ -1,4 +1,9 @@
-import { activityTypeMapping, timeFrames, type TimeFrame } from "./planConfig";
+import {
+  activityTypeMapping,
+  hotelTypes,
+  timeFrames,
+  type TimeFrame,
+} from "./planConfig";
 
 export function mapActivityTypes(activityTypes: string[]): string[] {
   return activityTypes.flatMap((type) => activityTypeMapping[type] || [type]);
@@ -45,7 +50,16 @@ export function getSelectedTimeFrame(timeFrame: string): TimeFrame {
     : "Heldag";
 }
 
+export function isHotel(place: any) {
+  const types = place.types || [];
+  return types.some((t: string) => hotelTypes.includes(t));
+}
+
 export function generatePlan(places: any[], selectedTimeFrame: TimeFrame) {
+  const slots = timeFrames[selectedTimeFrame];
+
+  places = places.filter((p) => !isHotel(p));
+
   const buckets: Record<"food" | "activity", any[]> = {
     food: [],
     activity: [],
@@ -59,11 +73,17 @@ export function generatePlan(places: any[], selectedTimeFrame: TimeFrame) {
   buckets.food = shuffleArray(buckets.food);
   buckets.activity = shuffleArray(buckets.activity);
 
-  return timeFrames[selectedTimeFrame]
+  return slots
     .map((slot) => {
-      const pool = buckets[slot.type];
+      let pool = buckets[slot.type];
+
+      if (slot.type === "food" && pool.length === 0) pool = buckets.activity;
+      if (slot.type === "activity" && pool.length === 0) pool = buckets.food;
+
       if (!pool?.length) return null;
+
       const place = pool.shift();
+
       return {
         time: slot.time,
         name: place.displayName?.text,
