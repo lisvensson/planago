@@ -12,6 +12,8 @@ export default [
   route("api/auth/*", "routes/Auth.ts"),
   route("hur-fungerar-planago", "./routes/HowToUse.tsx"),
   route("om-oss", "./routes/About.tsx"),
+  route("anvandarvillkor", "./routes/TermsOfUse.tsx"),
+  route("integritetspolicy", "./routes/PrivacyPolicy.tsx"),
   layout("./routes/Shell.tsx", [
     route("planago/skapa-resplan", "./routes/PlanagoFilter.tsx"),
     route("planago/resplan/:planId", "./routes/PlanagoPlan.tsx"),
