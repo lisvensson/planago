@@ -70,14 +70,14 @@ Authentication is triggered client‑side via Better Auth.
 **User can choose:**
 
 - Continue with Google
-- Continue with Microsoft
+- Continue with Discord
 
 **Response:**  
 Rendered HTML page with:
 
 - App logo
 - Login explanation
-- Buttons for Google and Microsoft login
+- Buttons for Google and Discord login
 
 **Notes:**
 
@@ -418,7 +418,7 @@ A simplified overview of how users interact with Planago from login to plan mana
 
 ### 1. User logs in
 
-- Chooses Google or Microsoft as authentication provider
+- Chooses Google or Discord as authentication provider
 - Better Auth handles OAuth flow and session creation
 - User is redirected to `/planago/skapa-resplan`
 
@@ -469,7 +469,7 @@ A modern, full‑stack setup built for performance, type safety, and a smooth de
 ### ✅ Authentication
 
 - **Better Auth** — handles OAuth, sessions, and provider integration
-- **Google & Microsoft** — social login providers
+- **Google & Discord** — social login providers
 
 ### ✅ Data & Server
 

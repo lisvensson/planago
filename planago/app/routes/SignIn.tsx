@@ -54,20 +54,38 @@ export default function SignIn() {
             type="button"
             onClick={() =>
               authClient.signIn.social({
-                provider: "microsoft",
+                provider: "discord",
                 callbackURL: "/planago/skapa-resplan",
               })
             }
             className="flex w-full justify-center items-center gap-3 rounded-xl border border-primary/20 bg-background px-5 py-4 text-sm font-semibold text-primary shadow-sm hover:bg-primary/10 transition"
           >
             <img
-              src="https://www.svgrepo.com/show/452062/microsoft.svg"
-              alt="Microsoft"
+              src="https://www.svgrepo.com/show/353655/discord-icon.svg"
+              alt="Discord"
               className="h-5 w-5"
             />
-            Fortsätt med Microsoft
+            Fortsätt med Discord
           </button>
         </div>
+
+        <p className="text-xs text-primary/60 text-center mt-8 leading-relaxed">
+          Genom att logga in godkänner du våra{" "}
+          <a
+            href="/anvandarvillkor"
+            className="underline hover:text-primary transition"
+          >
+            Användarvillkor
+          </a>{" "}
+          och{" "}
+          <a
+            href="/integritetspolicy"
+            className="underline hover:text-primary transition"
+          >
+            Integritetspolicy
+          </a>
+          .
+        </p>
       </div>
     </main>
   );
